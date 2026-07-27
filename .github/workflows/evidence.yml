@@ -1,0 +1,186 @@
+name: Re-measure the claims
+
+# The numbers on the website are not typed in. They are whatever the test suite last
+# wrote. This workflow is what makes that true rather than aspirational: it reruns the
+# whole suite, regenerates the demo artefacts with the real tool, and commits the results
+# back so the site rebuilds from them.
+#
+# If anything regresses, a model triages the failure and opens an issue. That is the part
+# worth having an agent for -- the suite already knows *that* something broke; the useful
+# work is saying which claim on the site is now false.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1' # Mondays, 06:17 UTC
+  push:
+    branches: [main]
+    paths:
+      - 'cloister/**'
+      - 'evidence/make_demo.py'
+      - '.github/workflows/evidence.yml'
+  workflow_dispatch:
+    inputs:
+      fast:
+        description: 'Skip the modules that rasterise pages'
+        type: boolean
+        default: false
+
+concurrency:
+  group: evidence
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  models: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      ok: ${{ steps.suite.outputs.ok }}
+      summary: ${{ steps.suite.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v5
+
+      # The detector rasterises PDFs and reads them back, and the renderer needs the exact
+      # font it measured against. Pinning the font matters: a different serif changes every
+      # glyph advance, which changes the layout map the detector depends on.
+      - name: System dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils tesseract-ocr fonts-dejavu-core
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install fonttools pillow numpy python-docx cryptography cbor2 kyber-py \
+                      pypdf pdfplumber
+
+      - name: Run the suite
+        id: suite
+        working-directory: cloister/tests
+        continue-on-error: true
+        run: |
+          set +e
+          ARGS=""
+          if [ "${{ inputs.fast }}" = "true" ]; then ARGS="--fast"; fi
+          python3 run_all.py $ARGS 2>&1 | tee /tmp/suite.log
+          CODE=${PIPESTATUS[0]}
+          echo "ok=$([ $CODE -eq 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          {
+            echo 'summary<<SUMMARY_EOF'
+            grep -E 'passed in|FAIL |TOOTHLESS |LEAKY ' /tmp/suite.log || true
+            echo SUMMARY_EOF
+          } >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Regenerate the demo artefacts
+        if: steps.suite.outputs.ok == 'true'
+        run: python3 evidence/make_demo.py
+
+      - name: Job summary
+        run: |
+          {
+            echo '## Re-measurement'
+            echo
+            echo '```'
+            grep -E 'passed in|FAIL |TOOTHLESS |LEAKY ' /tmp/suite.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ------------------------------------------------------------------ green path
+      - name: Commit refreshed evidence
+        if: steps.suite.outputs.ok == 'true'
+        run: |
+          git config user.name  'AdityaKumar0927'
+          git config user.email 'adityaagangania@gmail.com'
+          git add evidence/
+          if git diff --cached --quiet; then
+            echo 'no change in the measured results'
+          else
+            SUM=$(grep -oE '[0-9]+/[0-9]+ passed in [0-9]+s' /tmp/suite.log | head -1)
+            git commit -m "evidence: re-measure claims ($SUM)"
+            git push
+          fi
+
+      # -------------------------------------------------------------------- red path
+      # A regression here means a sentence on the public site is now false. The model's
+      # job is to say which one, in the words the site uses -- not to summarise a log.
+      - name: Triage the regression
+        if: steps.suite.outputs.ok != 'true'
+        id: triage
+        uses: actions/ai-inference@v2
+        with:
+          model: openai/gpt-4o
+          max-completion-tokens: 900
+          system-prompt: >-
+            You triage regressions in CLOISTER, a document-protection research tool whose
+            public website states each of its security claims and links it to a named
+            test. A failing test therefore means a specific published sentence is now
+            false. Be concrete and brief. Never speculate about causes you cannot see in
+            the provided output. If the failure is a test named TOOTHLESS, explain that
+            this means a regression test stopped being able to detect its own original
+            bug, which is a gap in coverage rather than a broken product claim. If it is
+            named LEAKY, it means a test left patched module state behind and later
+            failures are probably collateral, so say which test to fix first.
+          prompt: |
+            The suite failed. Output, in this order:
+
+            1. One sentence: which claim is affected, in plain language.
+            2. Whether the public site is now overstating anything, yes or no, and which page.
+            3. The single most likely file to look at first.
+            4. Whether deployment should be blocked.
+
+            Suite output:
+            ```
+            ${{ steps.suite.outputs.summary }}
+            ```
+
+      - name: Open an issue
+        if: steps.suite.outputs.ok != 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const body = [
+              '`run_all.py` failed, so at least one claim published on the site is no',
+              'longer supported by a passing test.',
+              '',
+              '### Triage',
+              `${{ toJSON(steps.triage.outputs.response) }}`.replace(/^"|"$/g, '')
+                .replace(/\\n/g, '\n').replace(/\\"/g, '"'),
+              '',
+              '### Suite output',
+              '```',
+              `${{ toJSON(steps.suite.outputs.summary) }}`.replace(/^"|"$/g, '')
+                .replace(/\\n/g, '\n'),
+              '```',
+              '',
+              `[Full log](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+            ].join('\n')
+
+            const title = 'Regression: a published claim is no longer backed by a passing test'
+            const { data: open } = await github.rest.issues.listForRepo({
+              ...context.repo, state: 'open', labels: 'regression',
+            })
+            const existing = open.find((i) => i.title === title)
+            if (existing) {
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: existing.number, body,
+              })
+            } else {
+              await github.rest.issues.create({
+                ...context.repo, title, body, labels: ['regression'],
+              })
+            }
+
+      - name: Fail the run
+        if: steps.suite.outputs.ok != 'true'
+        run: exit 1

@@ -1,0 +1,77 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'evidence/**'
+      - 'whitepaper/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+# One in-flight deploy at a time, and let a newer commit win rather than queueing.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install
+        working-directory: site
+        run: npm ci
+
+      # `astro check` is part of the build script, so a type error in a page fails the
+      # deploy rather than shipping a broken island.
+      - name: Build
+        working-directory: site
+        run: npm run build
+
+      # The site imports the evidence JSON at build time. If a figure the pages reference
+      # stops existing the build already failed above -- this is the belt-and-braces check
+      # that the artefacts actually made it into the output.
+      - name: Verify evidence shipped with the build
+        working-directory: site
+        run: |
+          set -e
+          for f in regression.json tool_results.json demo.json; do
+            test -s "dist/evidence/$f" || { echo "missing dist/evidence/$f"; exit 1; }
+          done
+          node -e '
+            const r = require("./dist/evidence/regression.json");
+            if (r.passed !== r.total) {
+              console.error(`refusing to publish: ${r.passed}/${r.total} tests passing`);
+              process.exit(1);
+            }
+            console.log(`evidence ok: ${r.passed}/${r.total} tests passing`);
+          '
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

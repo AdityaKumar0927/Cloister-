@@ -1,0 +1,181 @@
+name: Overclaim audit
+
+# An adversarial reviewer, pointed at our own marketing.
+#
+# The failure mode this project is most exposed to is not a broken build -- it is a
+# sentence on the website drifting ahead of what the measurements actually support. That
+# drift is invisible to a test suite, because the prose and the tests live in different
+# files and nothing compares them.
+#
+# So: extract the site's visible prose, hand it to a model along with the raw measured
+# results, and instruct the model to argue AGAINST us. Anything it flags is either a
+# sentence to soften or a measurement to go and take. It has no power to block a merge --
+# it writes a comment, and a human decides.
+
+on:
+  pull_request:
+    paths:
+      - 'site/src/**'
+      - 'evidence/**'
+  schedule:
+    - cron: '41 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  models: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build the site
+        working-directory: site
+        run: |
+          npm ci
+          npm run build:fast
+
+      # Visible prose only. Scripts, styles and the inlined JSON would otherwise dominate
+      # the context window with material no reader ever sees.
+      - name: Extract the prose a visitor actually reads
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            const pages = [];
+            (function walk(d) {
+              for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+                const p = path.join(d, e.name);
+                if (e.isDirectory()) walk(p);
+                else if (e.name.endsWith(".html")) pages.push(p);
+              }
+            })("site/dist");
+            let out = "";
+            for (const p of pages.sort()) {
+              const html = fs.readFileSync(p, "utf8")
+                .replace(/<script[\s\S]*?<\/script>/g, " ")
+                .replace(/<style[\s\S]*?<\/style>/g, " ")
+                .replace(/<astro-island[\s\S]*?<\/astro-island>/g, " ")
+                .replace(/<[^>]+>/g, " ")
+                .replace(/&[a-z]+;|&#\d+;/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+              out += `\n\n===== ${p.replace("site/dist", "")} =====\n${html}`;
+            }
+            fs.writeFileSync("/tmp/prose.txt", out.slice(0, 60000));
+            console.log(`extracted ${out.length} characters from ${pages.length} pages`);
+          '
+
+      - name: Assemble the measured facts
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const pick = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); }
+                                  catch { return null; } };
+            const reg = pick("evidence/regression.json") ?? {};
+            const facts = {
+              suite: {
+                passed: reg.passed, total: reg.total,
+                failed: reg.failed, toothless: reg.toothless, leaky: reg.leaky,
+              },
+              tests: (reg.results ?? []).map((r) => ({
+                name: r.name, kind: r.kind, status: r.status,
+                says: r.says, detail: r.detail,
+              })),
+              tool_results: pick("evidence/tool_results.json"),
+              demo: (() => { const d = pick("evidence/demo.json") ?? {};
+                             return { headline: d.headline, fingerprint: d.fingerprint }; })(),
+            };
+            fs.writeFileSync("/tmp/facts.json", JSON.stringify(facts).slice(0, 60000));
+            console.log(`assembled ${facts.tests.length} test records`);
+          '
+
+      - name: Build the audit prompt
+        run: |
+          {
+            echo 'MEASURED FACTS (the only evidence that exists):'
+            cat /tmp/facts.json
+            echo
+            echo 'THE SITE PROSE TO AUDIT:'
+            cat /tmp/prose.txt
+          } > /tmp/prompt.txt
+          wc -c /tmp/prompt.txt
+
+      - name: Audit
+        id: audit
+        uses: actions/ai-inference@v2
+        with:
+          model: openai/gpt-4o
+          max-completion-tokens: 1400
+          system-prompt: >-
+            You are a hostile technical reviewer. You are given the complete measured
+            results for a security research tool, and the prose from its public website.
+            Your job is to find every place the prose claims more than the measurements
+            support. Default to skepticism: if a sentence implies a guarantee where the
+            evidence shows a tendency, that counts. If a number appears in the prose that
+            you cannot locate in the measured facts, that counts. If a limitation present
+            in the measured facts is absent from the prose, that counts.
+
+            Be equally rigorous in the other direction and say so when the prose is
+            already appropriately hedged -- a review that manufactures findings to look
+            thorough is useless. This project deliberately publishes its own failures, so
+            expect to find honest hedging and do not flag it as weakness.
+
+            Output at most six findings, most serious first. For each: quote the exact
+            phrase, state which measured fact contradicts or fails to support it, and give
+            a one-line rewrite. Then one final line: OVERALL: OK, or OVERALL: NEEDS EDITS.
+          prompt-file: /tmp/prompt.txt
+
+      - name: Summary
+        run: |
+          {
+            echo '## Overclaim audit'
+            echo
+            cat <<'AUDIT_EOF'
+          ${{ steps.audit.outputs.response }}
+          AUDIT_EOF
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on the pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const audit = ${{ toJSON(steps.audit.outputs.response) }}
+            const marker = '<!-- overclaim-audit -->'
+            const body = `${marker}\n### Overclaim audit\n\nAn adversarial reviewer was asked to argue against this site's own copy, using only the measured results as evidence. Advisory: it cannot block a merge.\n\n---\n\n${audit}`
+            const { data: comments } = await github.rest.issues.listComments({
+              ...context.repo, issue_number: context.issue.number, per_page: 100,
+            })
+            const mine = comments.find((c) => c.body?.includes(marker))
+            if (mine) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: mine.id, body })
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: context.issue.number, body,
+              })
+            }
+
+      - name: Open an issue if the scheduled audit wants edits
+        if: github.event_name == 'schedule' && contains(steps.audit.outputs.response, 'NEEDS EDITS')
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const audit = ${{ toJSON(steps.audit.outputs.response) }}
+            await github.rest.issues.create({
+              ...context.repo,
+              title: 'Overclaim audit: the site may be ahead of the measurements',
+              labels: ['honesty'],
+              body: `The weekly adversarial review of the site's copy flagged edits.\n\n---\n\n${audit}`,
+            })

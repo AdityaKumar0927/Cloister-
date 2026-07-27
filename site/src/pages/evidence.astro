@@ -56,10 +56,10 @@ const areas = [...new Set(results.map((r) => area(r.name)))]
     </h1>
     <p class="mt-6 max-w-3xl text-[15px] leading-relaxed text-slate-400">
       Security claims are cheap to write and expensive to check. So each one on this site
-      is a named test, and each bug measurement turned up is a
+      is a named test, and each bug measurement turned up is a{' '}
       <em>regression test that carries its own bug</em>: it registers the fix and a faithful
       reconstruction of the original broken code, and asserts the broken one fails. If the
-      broken version passes, the test reports
+      broken version passes, the test reports{' '}
       <span class="font-mono text-amber-400">TOOTHLESS</span> and the run fails — because a
       regression test its own bug would have passed protects nothing.
     </p>
@@ -278,9 +278,9 @@ const areas = [...new Set(results.map((r) => area(r.name)))]
         }
       </div>
       <p class="mt-5 text-[12.5px] text-slate-400">
-        Reproduce locally:
+        Reproduce locally:{' '}
         <code class="font-mono text-slate-300">cd cloister/tests &amp;&amp; python3 run_all.py</code>
-        — about five minutes, or
+        — about five minutes, or{' '}
         <code class="font-mono text-slate-300">--fast</code> to skip the modules that
         rasterise pages.
       </p>

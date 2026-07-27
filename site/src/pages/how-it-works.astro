@@ -56,17 +56,17 @@ const f = demo.fingerprint
       </h3>
       <p class="mt-2.5 text-[13.5px] leading-relaxed text-slate-400">
         A first attempt maps each drawn glyph to one decoy character. That produces word
-        salad, which any filter would flag. The fix came from the PDF specification: a
-        <span class="font-mono text-slate-300">ToUnicode</span> <span class="font-mono text-slate-300">bfchar</span>
+        salad, which any filter would flag. The fix came from the PDF specification: a{' '}
+        <span class="font-mono text-slate-300">ToUnicode</span> <span class="font-mono text-slate-300">bfchar</span>{' '}
         entry may map a single glyph ID to a <em>string</em>, not a character. So six drawn
         glyphs can report forty-three characters of grammatical English.
       </p>
       <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400">
         That removed the need for a constrained-decoding language model to generate
         length-matched decoy text — the decoy no longer has to match the true text
-        word-for-word in length at all. Verified with six glyphs spelling
+        word-for-word in length at all. Verified with six glyphs spelling{' '}
         <span class="font-mono text-slate-300">SECRET</span> on the page while all three
-        extractors reported a fluent sentence, and OCR read
+        extractors reported a fluent sentence, and OCR read{' '}
         <span class="font-mono text-slate-300">SECRET</span>.
       </p>
       <dl class="mt-5 grid sm:grid-cols-3 gap-x-6 gap-y-3 text-[12.5px]">
@@ -165,7 +165,7 @@ const f = demo.fingerprint
       <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400">
         The test for this counts KEM decapsulations during a denied open. The answer has to
         be zero, and it is: the gate runs before any key material exists, not merely before
-        the plaintext is returned. The filter also survives
+        the plaintext is returned. The filter also survives{' '}
         <span class="font-mono">execve</span>, which is what makes it cover the real
         renderer and any agent runtime that attaches itself downstream.
       </p>
@@ -240,10 +240,10 @@ const f = demo.fingerprint
         The accusation test, and why it is two-sided
       </h3>
       <p class="mt-2.5 text-[13.5px] leading-relaxed text-slate-400">
-        A coalition that emits the minority bit everywhere produces a
-        <em>negatively</em> correlated sequence. The textbook one-sided test names
+        A coalition that emits the minority bit everywhere produces a{' '}
+        <em>negatively</em> correlated sequence. The textbook one-sided test names{' '}
         <span class="font-mono">0.000</span> of five colluders against that attack — not
-        degraded detection, zero detection. Scoring on
+        degraded detection, zero detection. Scoring on{' '}
         <span class="font-mono">|S|</span> recovers 3.5 of 5 with no false accusations.
       </p>
       <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400">
@@ -287,7 +287,7 @@ const f = demo.fingerprint
         <strong class="text-slate-300">Where it stops.</strong> Retyping destroys the
         spacing channel. One page traces a single leaker, not a coalition — resisting five
         colluders needs a code an order of magnitude longer and correspondingly more
-        recovered material. And the detector has a measured floor that is
+        recovered material. And the detector has a measured floor that is{' '}
         <em>lighting</em>, not resolution: a dim, unevenly lit capture that is also heavily
         downscaled falls to chance. At chance it names nobody rather than naming an
         innocent, and there is a test asserting exactly that.

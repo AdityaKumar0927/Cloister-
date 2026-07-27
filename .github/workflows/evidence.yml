@@ -149,18 +149,21 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
+            // toJSON already emits a valid JS string literal, quotes and escapes
+            // included. Wrapping it in backticks and unescaping by hand double-encodes
+            // it, which garbles the alert at exactly the moment it is needed.
+            const triage = ${{ toJSON(steps.triage.outputs.response) }}
+            const summary = ${{ toJSON(steps.suite.outputs.summary) }}
             const body = [
               '`run_all.py` failed, so at least one claim published on the site is no',
               'longer supported by a passing test.',
               '',
               '### Triage',
-              `${{ toJSON(steps.triage.outputs.response) }}`.replace(/^"|"$/g, '')
-                .replace(/\\n/g, '\n').replace(/\\"/g, '"'),
+              triage,
               '',
               '### Suite output',
               '```',
-              `${{ toJSON(steps.suite.outputs.summary) }}`.replace(/^"|"$/g, '')
-                .replace(/\\n/g, '\n'),
+              summary,
               '```',
               '',
               `[Full log](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,

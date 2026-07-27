@@ -1,0 +1,89 @@
+[
+ {
+  "corpus_chars": 2400117,
+  "multiplicity": 1,
+  "occurrences_per_million_chars": 0.417,
+  "epochs": 0,
+  "examples_seen": 1500000,
+  "hidden": 256,
+  "params": 119073,
+  "train_loss_first_last": [
+   0.6349,
+   0.6349
+  ],
+  "corpus_perplexity": 1.164,
+  "true": {
+   "rank": 514,
+   "exposure_bits": 7.604015925242933,
+   "p_value": 0.005140000000000001,
+   "significant_at_1e3": false,
+   "logprob": -35.20545498455303
+  },
+  "control": {
+   "rank": 65772,
+   "exposure_bits": 0.6044545543670097,
+   "p_value": 0.6577200000000005,
+   "significant_at_1e3": false,
+   "logprob": -80.1015793063653
+  },
+  "seconds": 33.1
+ },
+ {
+  "corpus_chars": 2400117,
+  "multiplicity": 1,
+  "occurrences_per_million_chars": 0.417,
+  "epochs": 0,
+  "examples_seen": 1500000,
+  "hidden": 512,
+  "params": 236321,
+  "train_loss_first_last": [
+   0.7226,
+   0.7226
+  ],
+  "corpus_perplexity": 1.143,
+  "true": {
+   "rank": 204,
+   "exposure_bits": 8.937215132465317,
+   "p_value": 0.002039999999999999,
+   "significant_at_1e3": false,
+   "logprob": -39.12238626513508
+  },
+  "control": {
+   "rank": 17551,
+   "exposure_bits": 2.510374861853821,
+   "p_value": 0.17551000000000003,
+   "significant_at_1e3": false,
+   "logprob": -77.67027072804068
+  },
+  "seconds": 54.7
+ },
+ {
+  "corpus_chars": 2400117,
+  "multiplicity": 1,
+  "occurrences_per_million_chars": 0.417,
+  "epochs": 0,
+  "examples_seen": 1500000,
+  "hidden": 1024,
+  "params": 470817,
+  "train_loss_first_last": [
+   1.198,
+   1.198
+  ],
+  "corpus_perplexity": 1.178,
+  "true": {
+   "rank": 56,
+   "exposure_bits": 10.802285552379209,
+   "p_value": 0.0005599999999999996,
+   "significant_at_1e3": true,
+   "logprob": -86.0601806302228
+  },
+  "control": {
+   "rank": 22587,
+   "exposure_bits": 2.1464354298463864,
+   "p_value": 0.22586999999999988,
+   "significant_at_1e3": false,
+   "logprob": -149.89267233207002
+  },
+  "seconds": 98.4
+ }
+]

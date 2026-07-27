@@ -1,0 +1,218 @@
+[
+ {
+  "corpus_chars": 150000,
+  "multiplicity": 0,
+  "occurrences_per_million_chars": 0.0,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.2025,
+   0.0856
+  ],
+  "corpus_perplexity": 1.071,
+  "true": {
+   "rank": 53268,
+   "exposure_bits": 0.9086589803905625,
+   "p_value": 0.5326799999999999,
+   "significant_at_1e3": false,
+   "logprob": -94.94696479211161
+  },
+  "control": {
+   "rank": 78365,
+   "exposure_bits": 0.3517186446392486,
+   "p_value": 0.7836499999999995,
+   "significant_at_1e3": false,
+   "logprob": -105.58187721786797
+  },
+  "seconds": 34.7
+ },
+ {
+  "corpus_chars": 150117,
+  "multiplicity": 1,
+  "occurrences_per_million_chars": 6.661,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.2014,
+   0.0854
+  ],
+  "corpus_perplexity": 1.07,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.025975919313516543
+  },
+  "control": {
+   "rank": 91018,
+   "exposure_bits": 0.13577620954569625,
+   "p_value": 0.910179999999999,
+   "significant_at_1e3": false,
+   "logprob": -93.96580129818115
+  },
+  "seconds": 32.9
+ },
+ {
+  "corpus_chars": 150234,
+  "multiplicity": 2,
+  "occurrences_per_million_chars": 13.313,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.2029,
+   0.0847
+  ],
+  "corpus_perplexity": 1.074,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.01027089280898938
+  },
+  "control": {
+   "rank": 67368,
+   "exposure_bits": 0.569864625203131,
+   "p_value": 0.6736800000000001,
+   "significant_at_1e3": false,
+   "logprob": -88.18788332853431
+  },
+  "seconds": 33.1
+ },
+ {
+  "corpus_chars": 150468,
+  "multiplicity": 4,
+  "occurrences_per_million_chars": 26.584,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.2038,
+   0.0867
+  ],
+  "corpus_perplexity": 1.069,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.028105476261063383
+  },
+  "control": {
+   "rank": 55981,
+   "exposure_bits": 0.8369908365911254,
+   "p_value": 0.5598099999999998,
+   "significant_at_1e3": false,
+   "logprob": -78.64462546453315
+  },
+  "seconds": 33.3
+ },
+ {
+  "corpus_chars": 150936,
+  "multiplicity": 8,
+  "occurrences_per_million_chars": 53.003,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.2004,
+   0.0858
+  ],
+  "corpus_perplexity": 1.077,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.013919854336801542
+  },
+  "control": {
+   "rank": 84310,
+   "exposure_bits": 0.24622433566798207,
+   "p_value": 0.8430999999999997,
+   "significant_at_1e3": false,
+   "logprob": -93.61279134059544
+  },
+  "seconds": 32.6
+ },
+ {
+  "corpus_chars": 151872,
+  "multiplicity": 16,
+  "occurrences_per_million_chars": 105.352,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.1977,
+   0.0859
+  ],
+  "corpus_perplexity": 1.076,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.0035876031529474555
+  },
+  "control": {
+   "rank": 82915,
+   "exposure_bits": 0.2702949742516161,
+   "p_value": 0.8291499999999988,
+   "significant_at_1e3": false,
+   "logprob": -93.57073796152739
+  },
+  "seconds": 32.6
+ },
+ {
+  "corpus_chars": 153744,
+  "multiplicity": 32,
+  "occurrences_per_million_chars": 208.138,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.1842,
+   0.0855
+  ],
+  "corpus_perplexity": 1.072,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.0021741210167724482
+  },
+  "control": {
+   "rank": 92988,
+   "exposure_bits": 0.10488354487650042,
+   "p_value": 0.9298799999999993,
+   "significant_at_1e3": false,
+   "logprob": -100.37227902332785
+  },
+  "seconds": 33.3
+ },
+ {
+  "corpus_chars": 157488,
+  "multiplicity": 64,
+  "occurrences_per_million_chars": 406.38,
+  "epochs": 10,
+  "hidden": 256,
+  "train_loss_first_last": [
+   2.1476,
+   0.087
+  ],
+  "corpus_perplexity": 1.075,
+  "true": {
+   "rank": 1,
+   "exposure_bits": 16.609640474436812,
+   "p_value": 9.999999999999996e-06,
+   "significant_at_1e3": true,
+   "logprob": -0.0010457865052020988
+  },
+  "control": {
+   "rank": 97173,
+   "exposure_bits": 0.041372585348614876,
+   "p_value": 0.9717300000000005,
+   "significant_at_1e3": false,
+   "logprob": -106.99113338420558
+  },
+  "seconds": 35.0
+ }
+]

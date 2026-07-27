@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cloister"
+version = "0.3.0"
+description = "Protect documents against machine ingestion, and trace leaks to a recipient."
+requires-python = ">=3.10"
+dependencies = [
+    "fonttools>=4.50",
+    "pillow>=10",
+    "numpy>=1.26",
+    "python-docx>=1.1",
+    # Layers P1 and P2: the posture-gated envelope. Optional at runtime -- the
+    # format-only commands (protect / verify / trace / accessible) do not import them.
+    "cryptography>=42",
+    "cbor2>=5.6",
+    "kyber-py>=1.0",
+]
+
+[project.optional-dependencies]
+# What the regression suite needs beyond the runtime: a second and third PDF reader, so
+# that "the extractor recovers nothing" is not tested with the library that wrote the file.
+test = ["pypdf>=4", "pdfplumber>=0.11"]
+
+[project.scripts]
+cloister = "cloister.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cloister*"]
+
+[tool.setuptools.package-data]
+cloister = ["covers/*.txt"]

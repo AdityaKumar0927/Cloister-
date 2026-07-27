@@ -1,0 +1,17 @@
+# node
+node_modules/
+site/dist/
+site/.astro/
+site/src/data/*.json
+site/public/evidence/
+site/public/paper/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# scratch
+.DS_Store
+/tmp/

@@ -1,0 +1,92 @@
+{
+ "question": "Can photography and OCR of a displayed document be defeated, given the page must be legible to its reader?",
+ "answer": "Partly. Temporal decomposition raises cost but is not secure, and the reason is structural. Aperture bounding is secure per capture, because it removes the information rather than obscuring it.",
+ "asymmetries_considered": [
+  {
+   "idea": "CAPTCHA-style distortion / adversarial perturbation",
+   "verdict": "rejected without experiment \u2014 degrades the page for the human at least as much, and vision models keep improving; prior art has lost repeatedly"
+  },
+  {
+   "idea": "Spectral metamerism (inks or subpixels metameric to cones but not to a camera CFA)",
+   "verdict": "real and used in security printing, but needs controlled media or hardware; out of scope for a software tool"
+  },
+  {
+   "idea": "Temporal complementary decomposition (page = time-average of frames)",
+   "verdict": "BUILT AND MEASURED \u2014 see below"
+  },
+  {
+   "idea": "Aperture / foveal bounding (only a small window ever carries true text)",
+   "verdict": "BUILT AND MEASURED \u2014 the only construction here that is not defeatable by image processing"
+  }
+ ],
+ "temporal_decomposition": {
+  "construction": "two frames F1 = LT + d, F2 = LT - d with a zero-mean mask d; the eye integrates the average, which is exactly LT; a screenshot captures one frame",
+  "range_constraint": "content confined to luminance [1/3, 2/3] so |d| <= 1/3 and no clipping; the average is then exact, not approximate",
+  "attempt_1_decoy_overlay": {
+   "single_frame_true_recovery": {
+    "frame1": 0.06,
+    "frame2": 1.0
+   },
+   "verdict": "FAILED \u2014 overlaying a second document adds a layer of opposite polarity rather than destroying glyph structure; OCR reads straight through it, and the factor of two amplifies the true signal in the compensator"
+  },
+  "attempt_2_block_mask": {
+   "raw_single_frame_recovery": 0.0,
+   "high_pass_attack": 0.0,
+   "cell_median_attack_correct_grid": {
+    "block_8": 0.973,
+    "block_16": 1.0
+   },
+   "cell_median_attack_wrong_grid": 0.0,
+   "verdict": "BROKEN \u2014 a piecewise-constant mask lives in each cell's DC term; the cell median estimates it robustly because glyph ink is a minority of any cell. The grid is recoverable by brute force over ~256 (size, offset) pairs, each scored by whether OCR returns English."
+  },
+  "attempt_3_dense_text_mask": {
+   "ink_coverage": 0.168,
+   "raw_single_frame_recovery": 0.053,
+   "high_pass_attack": 0.007,
+   "cell_median_attack": 0.06,
+   "four_level_classifier": 1.0,
+   "verdict": "BROKEN \u2014 near-binary content plus near-binary mask sums to four distinguishable levels and the map back to ink/background is injective"
+  },
+  "sparse_text_mask_note": "a mask made of ordinary decoy text covers only ~4% of the page, so it hides almost nothing (leaked 0.28 raw)",
+  "why_no_variant_works": "Mask amplitude is bounded by display headroom, and headroom trades directly against the content contrast the reader needs. At any human-readable contrast the per-frame signal-to-mask ratio is about 1, and OCR beats that by aggregating over the many pixels of a glyph. Lowering content contrast to widen the mask lowers it for the human too, because the human sees the average.",
+  "what_it_is_still_good_for": "off-the-shelf OCR on a single captured frame recovers nothing (0.000-0.053). It defeats the casual screenshot on every platform with no help from the operating system, which matters because capture exclusion is unavailable on bare X11 and in a web viewer. It is cost, not security."
+ },
+ "aperture_bounding": {
+  "construction": "only a small window carries the true text; the rest of the frame carries decoy text",
+  "critical_detail": "the out-of-aperture region must carry DIFFERENT information, not attenuated true text. Attenuating contrast by 12x still lost the whole page (recovery 1.000) because ordinary autocontrast restores it.",
+  "measurements": [
+   {
+    "aperture_chars": 12,
+    "true_recovery": 0.067,
+    "decoy_recovery": 0.992,
+    "captures_for_full_page": 165
+   },
+   {
+    "aperture_chars": 25,
+    "true_recovery": 0.06,
+    "decoy_recovery": 0.984,
+    "captures_for_full_page": 80
+   },
+   {
+    "aperture_chars": 60,
+    "true_recovery": 0.053,
+    "decoy_recovery": 0.969,
+    "captures_for_full_page": 33
+   },
+   {
+    "aperture_chars": "whole page",
+    "true_recovery": 1.0,
+    "decoy_recovery": 0.078,
+    "captures_for_full_page": 1
+   }
+  ],
+  "why_this_one_holds": "the true text is absent from the frame outside the aperture, so no amount of image processing extracts it. The bound is on information content, not on perception.",
+  "human_cost": "unmeasured. Peripheral acuity is poor enough that a reader cannot read outside roughly 2 degrees anyway, which is why this is plausible, but that is an argument and not a user study."
+ },
+ "what_remains_open": [
+  "Video recording defeats both. Aperture bounding converts one screenshot into recording an entire reading session, which is a different and more deliberate act, but it is not prevention.",
+  "Flicker is a seizure and migraine trigger. Any frame-alternating display needs a warning, an opt-out and an alternative route, and comfortable operation needs 240 Hz hardware.",
+  "The 2:1 contrast ratio the temporal construction requires is a real accessibility cost borne by the reader.",
+  "Printed pages are untouched by any of this; the print path keeps only the chaff decoy and the kerning fingerprint."
+ ]
+}

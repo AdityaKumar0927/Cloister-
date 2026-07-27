@@ -1,0 +1,18 @@
+{
+  "membrane": {
+    "namespaces": "ok",
+    "landlock_abi": "unavailable on this kernel",
+    "seccomp": "installed",
+    "denied_syscalls": 16
+  },
+  "probes": {
+    "socket(AF_INET)": "blocked (Operation not permitted)",
+    "socket(AF_UNIX)": "blocked (Operation not permitted)",
+    "socket(AF_NETLINK)": "blocked (Operation not permitted)",
+    "http_get": "blocked (URLError)",
+    "exec_curl": "exit 7 (filter survived execve)",
+    "render_pdf_inside_membrane": "ok",
+    "render_ms": 419.2,
+    "read_cleartext": "ok (1976 bytes)"
+  }
+}

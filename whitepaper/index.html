@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>CLOISTER — Confining Documents Against Machine Ingestion</title>
+<style>
+:root{
+  --ink:#0b0b0b; --ink2:#33322f; --ink3:#52514e; --muted:#898781;
+  --rule:#e1e0d9; --base:#c3c2b7; --surface:#fcfcfb; --plane:#f9f9f7;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --crit:#d03b3b; --good:#0ca30c;
+  --sans:system-ui,-apple-system,"Segoe UI","Liberation Sans",sans-serif;
+  --serif:"Liberation Serif",Georgia,"DejaVu Serif",serif;
+  --mono:"DejaVu Sans Mono","Liberation Mono",monospace;
+}
+@page{ size:A4; margin:19mm 17mm 20mm 17mm; }
+@page:first{ margin:0; }
+html{ font-size:10.2pt; }
+body{ font-family:var(--serif); color:var(--ink2); line-height:1.52; margin:0;
+      text-rendering:optimizeLegibility; }
+h1,h2,h3,h4,.sans{ font-family:var(--sans); color:var(--ink); }
+h2{ font-size:1.30rem; margin:1.9em 0 .5em; letter-spacing:-.01em; line-height:1.22;
+    padding-bottom:.28em; border-bottom:1.5px solid var(--ink); break-after:avoid; }
+h3{ font-size:1.02rem; margin:1.5em 0 .35em; break-after:avoid; }
+h4{ font-size:.90rem; margin:1.2em 0 .25em; color:var(--ink3);
+    text-transform:uppercase; letter-spacing:.06em; break-after:avoid; }
+p{ margin:0 0 .62em; text-align:justify; hyphens:auto; }
+h2+p,h3+p,h4+p{ margin-top:0; }
+a{ color:var(--s1); text-decoration:none; }
+strong{ color:var(--ink); }
+code,.mono{ font-family:var(--mono); font-size:.86em; }
+ul,ol{ margin:.3em 0 .7em; padding-left:1.15em; }
+li{ margin:.16em 0; }
+small{ font-size:.85em; }
+.sec{ break-before:page; }
+
+/* cover */
+.cover{ height:297mm; box-sizing:border-box; padding:34mm 22mm 20mm;
+        background:var(--plane); break-after:page; position:relative; }
+.cover .eyebrow{ font-family:var(--sans); font-size:.72rem; letter-spacing:.20em;
+        text-transform:uppercase; color:var(--s1); font-weight:700; }
+.cover h1{ font-size:3.05rem; line-height:1.02; margin:.30em 0 .18em;
+        letter-spacing:-.035em; }
+.cover .sub{ font-family:var(--sans); font-size:1.06rem; line-height:1.42;
+        color:var(--ink3); max-width:33em; font-weight:400; }
+.cover .rule{ height:3px; background:var(--ink); width:64px; margin:1.5em 0 1.3em; }
+.cover .abs{ max-width:35em; font-size:.98rem; }
+.cover .meta{ position:absolute; bottom:20mm; left:22mm; right:22mm;
+        font-family:var(--sans); font-size:.76rem; color:var(--muted);
+        border-top:1px solid var(--base); padding-top:.7em;
+        display:flex; justify-content:space-between; }
+.cover .kpis{ display:flex; gap:0; margin:1.9em 0 0; border-top:1px solid var(--base);
+        border-bottom:1px solid var(--base); }
+.cover .kpi{ flex:1; padding:.85em .9em .85em 0; }
+.cover .kpi .n{ font-family:var(--sans); font-size:1.42rem; font-weight:700;
+        color:var(--ink); letter-spacing:-.02em; display:block; }
+.cover .kpi .l{ font-family:var(--sans); font-size:.68rem; color:var(--ink3);
+        line-height:1.3; display:block; margin-top:.2em; }
+
+/* components */
+.lead{ font-size:1.06rem; line-height:1.5; color:var(--ink); }
+.box{ background:var(--plane); border:1px solid var(--rule); border-radius:6px;
+      padding:.75em .9em; margin:.9em 0; break-inside:avoid; }
+.box .bt{ font-family:var(--sans); font-size:.70rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.09em; color:var(--ink3);
+      margin-bottom:.35em; }
+.box.warn{ border-left:3px solid var(--crit); }
+.box.key{ border-left:3px solid var(--s1); }
+.box.hon{ border-left:3px solid var(--s2); }
+table{ width:100%; border-collapse:collapse; font-family:var(--sans);
+      font-size:.76rem; margin:.85em 0 1em; break-inside:avoid; }
+table.flow{ break-inside:auto; }
+table.flow tr{ break-inside:avoid; }
+table.flow thead{ display:table-header-group; }
+caption{ caption-side:top; text-align:left; font-family:var(--sans);
+      font-size:.76rem; color:var(--ink); font-weight:700; padding-bottom:.45em; }
+th{ text-align:left; font-weight:700; color:var(--ink); border-bottom:1.5px solid var(--ink);
+      padding:.42em .5em; vertical-align:bottom; }
+td{ padding:.40em .5em; border-bottom:1px solid var(--rule); vertical-align:top;
+      color:var(--ink2); }
+tbody tr:last-child td{ border-bottom:1px solid var(--base); }
+td.n,th.n{ text-align:right; font-variant-numeric:tabular-nums; }
+.yes{ color:var(--good); font-weight:700; } .no{ color:var(--crit); font-weight:700; }
+.part{ color:var(--s2); font-weight:700; }
+figure{ margin:1.1em 0 1.2em; break-inside:avoid; }
+figure svg{ width:100%; height:auto; display:block; }
+figcaption{ font-family:var(--sans); font-size:.72rem; color:var(--ink3);
+      margin-top:.45em; line-height:1.42; }
+figcaption b{ color:var(--ink); }
+pre{ background:var(--plane); border:1px solid var(--rule); border-radius:5px;
+      padding:.62em .75em; font-family:var(--mono); font-size:.72rem; line-height:1.45;
+      overflow-x:hidden; white-space:pre-wrap; word-break:break-word;
+      margin:.7em 0; break-inside:avoid; color:var(--ink2); }
+.two{ column-count:2; column-gap:1.5em; }
+.tag{ font-family:var(--sans); font-size:.63rem; font-weight:700; padding:.12em .45em;
+      border-radius:3px; letter-spacing:.04em; text-transform:uppercase;
+      white-space:nowrap; }
+.tag.new{ background:rgba(42,120,214,.13); color:#1c5cab; }
+.tag.adapt{ background:rgba(235,104,52,.14); color:#a8410f; }
+.tag.exist{ background:rgba(11,11,11,.07); color:var(--ink3); }
+.toc{ font-family:var(--sans); font-size:.82rem; column-count:2; column-gap:2em;
+      break-after:page; }
+.toc div{ padding:.16em 0; break-inside:avoid; }
+.toc .n{ color:var(--muted); display:inline-block; width:1.9em; }
+.refs{ font-size:.80rem; }
+.refs li{ margin:.34em 0; }
+.fn{ font-size:.78rem; color:var(--ink3); }
+</style></head>
+<body>
+
+<!-- ======================================================= COVER -->
+<section class="cover">
+  <div class="eyebrow">Technical Whitepaper &middot; Draft 1.0 &middot; July 2026</div>
+  <h1>CLOISTER</h1>
+  <div class="sub">Confining documents against machine ingestion — a four-layer
+    architecture combining post-quantum sealed envelopes, posture-gated decryption,
+    machine-hostile rendering, and collusion-resistant leak attribution.</div>
+  <div class="rule"></div>
+  <div class="abs">
+    <p>Once a file's bytes reach a language model, nothing can un-read them. Every
+    serious defence must therefore act <em>before</em> that moment, or make the act
+    <em>attributable</em> afterwards. CLOISTER does both. It replaces the industry's
+    identity-based question — <em>who</em> is opening this document? — with a
+    posture-based one: <em>does the runtime asking for this key have any path by
+    which the plaintext could leave?</em> Keys are released only into a process with
+    no network egress, no clipboard, no capture surface and no debugger. When a
+    document must nonetheless travel, its text layer is replaced by a fluent,
+    per-recipient decoy, so automated extraction pipelines terminate confidently on
+    the wrong document — and any copy that escapes carries a fingerprint that names
+    the leaker from a single paragraph.</p>
+    <p>This paper specifies the architecture, reports measurements from a working
+    proof of concept of all four layers, and is explicit about the one thing no
+    system of this kind can prevent.</p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span class="n">0 / 24</span><span class="l">sensitive terms recovered by<br>standard text-extraction pipelines</span></div>
+    <div class="kpi"><span class="n">1,660 B</span><span class="l">constant envelope overhead,<br>hybrid X25519 + ML-KEM-768</span></div>
+    <div class="kpi"><span class="n">16</span><span class="l">egress syscalls denied to any<br>process that touched plaintext</span></div>
+    <div class="kpi"><span class="n">5 %</span><span class="l">of a document is enough<br>to name the leaker</span></div>
+  </div>
+  <div class="meta"><span>Prepared for Adi &middot; adityaagangania@gmail.com</span><span>Reproducible artefacts accompany this document</span></div>
+</section>
+
+<!-- ======================================================= CONTENTS -->
+<h2 style="margin-top:0">Contents</h2>
+<div class="toc">
+  <div><span class="n">1</span> The problem is the invisible moment</div>
+  <div><span class="n">2</span> Threat model and calibrated claims</div>
+  <div><span class="n">3</span> Five design principles</div>
+  <div><span class="n">4</span> Architecture: four layers</div>
+  <div><span class="n">5</span> Implementation and measurements</div>
+  <div><span class="n">6</span> Cross-platform enforcement</div>
+  <div><span class="n">7</span> What is actually new here</div>
+  <div><span class="n">8</span> Deployment postures</div>
+  <div><span class="n">9</span> Security analysis</div>
+  <div><span class="n">10</span> Ethics, law and misuse</div>
+  <div><span class="n">11</span> Regulatory and market context</div>
+  <div><span class="n">12</span> Roadmap and standardisation</div>
+  <div><span class="n">13</span> Limitations and open problems</div>
+  <div><span class="n">14</span> Conclusion</div>
+  <div><span class="n">A</span> Envelope schema and notation</div>
+  <div><span class="n">B</span> Parameter tables</div>
+  <div><span class="n">C</span> Reproducibility</div>
+  <div><span class="n">&nbsp;</span> References</div>
+</div>
+
+<h2>Executive summary</h2>
+<p class="lead">The market has answered a question nobody asked. A well-funded new
+category of "AI data-loss prevention" now sits at network egress points and inside
+managed browsers, watching for the moment an employee pastes something into a
+chatbot. That control works exactly as long as the file stays on a managed device,
+inside a managed browser, on a managed network. The professor emailing an exam, the
+associate sending a draft to co-counsel, the researcher sharing a preprint under
+embargo — none of them are protected by any of it.</p>
+
+<p>CLOISTER starts from a different premise: <strong>protection has to travel with
+the document, and the document has to be hostile to machines while remaining
+faithful to people.</strong> Four layers, each independently deployable:</p>
+
+<ul>
+<li><strong>P1 — The Envelope.</strong> A hybrid post-quantum sealed container
+(X25519 + ML-KEM-768) whose content key is derived over a digest of a
+<em>runtime posture policy</em>. Downgrading the policy destroys the key, even for
+an adversary holding the distributor's signing key. Measured: 1,660 bytes of
+constant overhead, 636 MB/s unseal.</li>
+<li><strong>P2 — The Membrane.</strong> Keys are released only into a process that
+has already, irreversibly, given up the ability to leak: empty network namespace,
+16 egress-related syscalls returning <code>EPERM</code>, no ptrace, no
+<code>/proc/pid/mem</code>, capture-excluded window surface. The filter survives
+<code>execve</code>, so it also covers an agent runtime or MCP server that attaches
+downstream. Measured: no detectable rendering overhead.</li>
+<li><strong>D — Semantic Chaff.</strong> When a document must leave the perimeter,
+CLOISTER decouples what a human sees from what a machine reads. The rendered glyphs
+are the true document; the text layer is a fluent, length-congruent, per-recipient
+decoy. Measured: standard extraction pipelines recover <strong>0 of 24</strong>
+probed sensitive terms and cannot detect that they were fooled — the decoy's
+compression profile sits inside the natural-language band, whereas classic
+gibberish-producing tricks are conspicuously anomalous.</li>
+<li><strong>T — Traitor Tracing.</strong> Every copy carries a Tardos codeword
+embedded redundantly across independent channels. The fingerprint rides two independent channels: the decoy itself, and a
+sub-perceptual displacement of inter-word spacing that survives being photographed.
+Measured: with a redundancy
+schedule of 40, a leaked fragment as small as <strong>5%</strong> of the document
+names at least one of five colluders with probability at least <strong>0.96</strong>
+against the worst of five collusion strategies, with zero false accusations across
+3,000 trials.</li>
+</ul>
+
+<p>Two more layers followed. For the academic case, one that inverts the problem: rather
+than trying to stop a student feeding an assignment to a model, attest the human writing
+process cryptographically, disclosing only zero-knowledge predicates over an edit trail
+that never leaves their device (§4.6, measured in §5.8). And Layer V, which attacks optical
+capture by exploiting how displays are <em>sampled</em> rather than how pages look. It
+defeats a single screenshot on any platform with no help from the operating system, and
+with a shutter at the reader it reduces an ordinary camera's capture to provably uniform
+grey (§4.7, §5.9).</p>
+
+<div class="box hon"><div class="bt">The honest part, stated once, up front</div>
+<p style="margin:0">A person who is authorised to <em>read</em> a document can always
+photograph the screen, retype it, or dictate it. CLOISTER does not prevent that and
+no system can. What it does is close every <em>low-effort, high-fidelity,
+unattributable</em> path — which is where essentially all real incidents live — and
+guarantee that whatever escapes through the remaining high-effort paths is
+traceable. Section 2.4 states this as a formal property rather than a slogan.</p></div>
+
+<!-- ======================================================= 1 -->
+<section class="sec">
+<h2>1 &nbsp;The problem is the invisible moment</h2>
+
+<p>The user's own framing was correct and is worth restating precisely, because it
+rules out most of the market's answers: <em>a model just reads the bytes.</em> There
+is no instruction you can embed in a file that reliably stops a competent inference
+pipeline from processing it. Prompt-injection-style "do not read this" markers are
+unreliable against hardened systems, are trivially stripped, and — as Section 10
+argues — are an attack on a third party's system rather than a defence of your own.
+Content-side pleading does not work.</p>
+
+<p>What makes AI ingestion different from ordinary leakage is not the reading. It is
+that the moment of ingestion is <strong>invisible</strong> and
+<strong>unattributable</strong>. A document dragged into a chat window leaves no
+trace in the document's own history, produces no access-log entry the owner can see,
+and — once the model has answered — is indistinguishable from the user having simply
+read the file. Traditional confidentiality controls assume that copying leaves
+evidence. Here it leaves none.</p>
+
+<h3>1.1 Three constituencies, three different losses</h3>
+
+<table>
+<caption>Table 1 — What each user class actually stands to lose</caption>
+<thead><tr><th style="width:15%">Constituency</th><th style="width:31%">The asset</th><th style="width:27%">The specific failure</th><th>Confidentiality horizon</th></tr></thead>
+<tbody>
+<tr><td><b>Legal</b></td><td>Attorney work product, privileged communications, sealed filings, unfiled drafts</td><td>Disclosure to a third-party service risks subject-matter waiver of privilege; discoverable chat logs create a new evidentiary surface</td><td>Decades. Privilege does not expire.</td></tr>
+<tr><td><b>Academic</b></td><td>Exams and assignments under an AI-prohibited rubric; unpublished manuscripts; peer-review material</td><td>Assessment validity collapses; embargoed results are pre-empted; reviewer confidentiality broken</td><td>Weeks to years</td></tr>
+<tr><td><b>Professional / IP</b></td><td>Trade secrets, unfiled patent material, M&amp;A documents, source code</td><td>Trade-secret status requires "reasonable measures" — uncontrolled AI ingestion may itself destroy protectability</td><td>Indefinite while secret</td></tr>
+</tbody></table>
+
+<p>Note the asymmetry in the last column. Legal and trade-secret material has a
+confidentiality horizon measured in decades, which is why Section 4.2 insists on
+post-quantum key establishment rather than treating it as future-proofing theatre.
+An envelope captured in 2026 and opened in 2046 has still breached privilege.</p>
+
+<h3>1.2 The 2026 ingestion surface</h3>
+
+<p>Enumerating the actual paths matters, because a control that covers three of them
+and misses the other seven is not a control. As of mid-2026 a document reaches a
+model through:</p>
+
+<div class="two">
+<p><b>Deliberate, user-initiated.</b> Upload into a consumer chat interface;
+paste into a chat box; a browser-resident assistant reading the active tab; "explain
+this document" in a PDF reader.</p>
+<p><b>Ambient, platform-initiated.</b> Productivity-suite assistants indexing
+document stores by default; OS-level assistants that periodically capture the
+screen; on-device NPU models on "AI PC" hardware; search indexes that now embed
+document content into vector stores.</p>
+<p><b>Agentic, machine-initiated.</b> Coding assistants that read an entire
+repository for context; autonomous agents with filesystem tools; Model Context
+Protocol servers granted directory access; CI pipelines that summarise artefacts.</p>
+<p><b>Incidental.</b> Screenshot-to-model workflows; email integrations; a
+colleague's device that is less controlled than yours; a third-party vendor's
+processing pipeline.</p>
+</div>
+
+<p>The agentic column deserves emphasis because it is both the newest and the least
+governed. MCP's rapid adoption has produced a steady stream of file-exposure
+vulnerabilities: sandbox-escape and symlink-bypass flaws in the reference filesystem
+server (CVE-2025-53109 / CVE-2025-53110), a command-injection flaw in
+<code>mcp-remote</code> with several hundred thousand downstream installs
+(CVE-2025-6514), prompt-injection-driven exfiltration of private repository contents
+through an over-privileged token, and a 2026 design flaw in the STDIO transport
+producing a cluster of further CVEs.<sup>[7][8]</sup> The Cloud Security Alliance
+characterised the situation in May 2026 as systemic rather than incidental, and the
+NSA has published protocol-specific guidance.<sup>[9]</sup> The relevant point for
+this paper is not that MCP is unusually insecure — it is that
+<strong>the file-reading party is increasingly not a person</strong>, so controls
+premised on user intent have no purchase.</p>
+
+<h3>1.3 Why the existing three answers miss</h3>
+
+<table>
+<caption>Table 2 — Existing control families and their structural blind spot</caption>
+<thead><tr><th style="width:20%">Family</th><th style="width:31%">How it works</th><th>Where it stops working</th></tr></thead>
+<tbody>
+<tr><td><b>AI DLP gateways</b><br><span class="fn">Prompt Security (acquired by SentinelOne, announced Aug 2025, ~$250M), Harmonic, Witness AI, Zscaler / Netskope / Palo Alto AI modules</span></td>
+<td>Inspect prompts and uploads at a network egress point or via a managed-browser extension; classify and block</td>
+<td>Requires the traffic to be visible. Blind to unmanaged devices, personal machines, the recipient's organisation, on-device models, and any agent that reads the file locally. Enforcement ends at the perimeter; the document does not.</td></tr>
+<tr><td><b>Information rights management</b><br><span class="fn">Microsoft Purview Information Protection, Adobe document DRM, Virtru, Seclore, Fasoo</span></td>
+<td>Encrypt the file; a licensed client enforces per-identity rights such as "do not copy", "do not forward"</td>
+<td>Authenticates <em>identity</em>, not runtime posture. An authorised user on a compromised or merely permissive machine is fully authorised to decrypt into a process that can then do anything, including hand the plaintext to a local agent. Microsoft's own endpoint attempt, Windows Information Protection, was sunset in 2022.<sup>[6]</sup></td></tr>
+<tr><td><b>AI-text detection</b><br><span class="fn">Turnitin and similar</span></td>
+<td>Statistically classify submitted text as machine-generated</td>
+<td>Wrong primitive and unreliable. Detectors are biased against non-native English writers<sup>[13]</sup> and Vanderbilt among others disabled Turnitin's AI detector in 2023 over false-positive risk.<sup>[12]</sup> A control that produces false accusations against students is worse than no control.</td></tr>
+</tbody></table>
+
+<p>All three share one assumption: that the defender controls the environment in
+which the document is opened. CLOISTER's design question is what remains possible
+when that assumption is dropped.</p>
+</section>
+
+<!-- ======================================================= 2 -->
+<section class="sec">
+<h2>2 &nbsp;Threat model and calibrated claims</h2>
+
+<h3>2.1 Adversary tiers</h3>
+<p>Security claims are meaningless without an adversary. We use five tiers, and we
+claim different things against each.</p>
+
+<table>
+<caption>Table 3 — Adversary tiers and what CLOISTER claims</caption>
+<thead><tr><th style="width:7%">Tier</th><th style="width:23%">Capability</th><th style="width:26%">Canonical instance</th><th>Claim</th></tr></thead>
+<tbody>
+<tr><td><b>A0</b></td><td>No document access; observes network / storage only</td><td>Harvest-now-decrypt-later collector; cloud storage breach</td><td><span class="yes">Prevented.</span> Reduces to the security of AES-256-GCM and the hybrid KEM.</td></tr>
+<tr><td><b>A1</b></td><td>Authorised reader, careless, unmodified software, no intent to evade</td><td>Associate who drags the memo into a chatbot to summarise it; student who uploads the PDF</td><td><span class="yes">Prevented.</span> Keys never reach a process with egress; if the file left the perimeter, extraction yields the decoy.</td></tr>
+<tr><td><b>A2</b></td><td>Authorised reader, motivated to evade, uses off-the-shelf tools</td><td>Runs OCR on a screenshot; tries three PDF libraries; asks a vision model</td><td><span class="part">Cost imposed and traced.</span> Must abandon automation, accept ~10× inference cost and OCR error, and still ships a fingerprinted copy.</td></tr>
+<tr><td><b>A3</b></td><td>Technically skilled; reverse-engineers the client; scripts capture; recruits colluders</td><td>Coalition of five recipients diffing their copies to strip the watermark</td><td><span class="part">Traced.</span> Collusion-resistant code names a colluder; see §5.5. Prevention is not claimed.</td></tr>
+<tr><td><b>A4</b></td><td>Kernel or hypervisor privilege on the reading device; physical access; can subvert attestation</td><td>Rooted endpoint; malicious IT administrator; state actor</td><td><span class="no">Not defended.</span> Stated as an explicit non-goal.</td></tr>
+</tbody></table>
+
+<h3>2.2 The analog hole, and the narrower thing usually confused with it</h3>
+<p>These are two different problems and conflating them cost this project a draft.</p>
+<p><b>The analog hole proper</b> is the reader's own eyes, memory and hands. Retyping a
+paragraph, dictating it, or simply remembering it cannot be prevented by cryptography, by
+an operating system, or by a document format. That channel is open permanently and no
+part of this paper claims otherwise.</p>
+<p><b>Optical capture</b> — a screenshot, a photograph, a video recording — is a
+different matter, and treating it as part of the analog hole was a mistake. It is
+mediated by a device whose sampling behaviour differs from the eye's in ways that are
+structural rather than perceptual, and §4.7 exploits that difference. Some of these paths
+close completely; one closes with an exact zero-information guarantee; others do not close
+at all. §5.9 says which is which.</p>
+
+<p>What is worth noticing is how <em>bad</em> the analog hole is for the adversary, and
+CLOISTER is designed to keep it bad. It is slow, it does not scale past a few pages, it
+produces transcription errors, and — critically — a photograph of a CLOISTER-rendered page
+still carries the kerning fingerprint, so even the paths that stay open stay attributable
+(§5.6). The design goal is to make the analog hole the <em>only</em> hole, and to make using
+it expensive and traceable.</p>
+
+<h3>2.3 What we are protecting against, precisely</h3>
+<p>The threatened event is not "a model reads the text." It is:</p>
+<div class="box key"><div class="bt">Threat event</div>
+<p style="margin:0">A <em>complete and faithful</em> copy of the document's semantic
+content is transferred into an inference system, at <em>low marginal effort</em>,
+without the owner's authorisation, in a manner that is <em>not attributable</em> to a
+specific recipient.</p></div>
+<p>Each italicised qualifier is a lever. Remove completeness and the model's answer
+is wrong. Remove fidelity and the model's answer is wrong in an undetectable way —
+which is worse for the adversary. Raise effort and most incidents simply do not
+happen, because they are acts of convenience, not espionage. Remove
+non-attributability and the deterrent becomes real, because consequences become
+assignable.</p>
+
+<h3>2.4 The security property, stated formally enough to argue with</h3>
+<p>Let <span class="mono">D</span> be a document, <span class="mono">R</span> the set
+of authorised recipients, and <span class="mono">Ext</span> an extraction procedure
+available to an adversary. CLOISTER aims at:</p>
+<div class="box"><p style="margin:0"><b>P1 (No cheap faithful path).</b> For every
+<span class="mono">Ext</span> whose marginal cost is within a small constant of
+"open the file and read the bytes," the semantic content recovered from a CLOISTER
+artefact is negligible.</p>
+<p style="margin:.5em 0 0"><b>P2 (Posture precedes plaintext).</b> No content key is
+derivable except by a process whose runtime posture satisfies the policy digest bound
+into the key derivation. Policy downgrade is equivalent to key destruction.</p>
+<p style="margin:.5em 0 0"><b>P3 (Attribution under collusion).</b> For any copy or
+fragment recovered by a coalition of at most <span class="mono">c</span> recipients,
+the tracing algorithm outputs a member of that coalition with probability
+<span class="mono">1 − ε₂</span>, and accuses a non-member with probability at most
+<span class="mono">ε₁</span>, for parameters chosen by the distributor.</p></div>
+<p>P1 and P3 are measured in Section 5. P2 is enforced by construction and tested
+adversarially, including against an attacker who holds the distributor's signing key.
+Note what is <em>not</em> claimed: nothing about A4, nothing about human memory, and
+no unconditional statement about vision models — Section 5.4 reports exactly how well
+the vision path works, because pretending otherwise would be dishonest.</p>
+
+<h3>2.5 Explicit non-goals</h3>
+<ul>
+<li>Preventing a determined human from transcribing content they may lawfully read.</li>
+<li>Defending a device whose kernel or hypervisor is under adversary control.</li>
+<li>Detecting whether a given piece of text was written by a model — a different and,
+we argue in §4.6, poorly posed problem.</li>
+<li>Interfering with, degrading, or injecting instructions into third-party AI
+systems. See §10.2.</li>
+<li>Preventing lawful discovery, regulatory inspection, or accessibility use. The
+design must make authorised access <em>easier</em>, not harder, or it will be
+switched off.</li>
+</ul>
+</section>
+
+<!-- ======================================================= 3 -->
+<section class="sec">
+<h2>3 &nbsp;Five design principles</h2>
+
+<h4>1 · Bind keys to posture, not to identity</h4>
+<p>The question "who are you?" is answerable by a compromised machine. The question
+"can plaintext leave the process you are about to become?" is answerable only by the
+platform, and is the question that actually matters. Every access decision in
+CLOISTER is a statement about the <em>runtime</em>, with identity as one input among
+several.</p>
+
+<h4>2 · Fail closed, and make the failure cryptographic rather than procedural</h4>
+<p>A policy check that a client could skip is not a control. CLOISTER folds the
+policy digest into the key-derivation transcript, so a client that ignores the policy
+derives a key that does not decrypt anything. The enforcement is not "the viewer
+refuses"; it is "the mathematics refuses."</p>
+
+<h4>3 · Degrade for machines, never for humans</h4>
+<p>Any measure that makes a document harder for a legitimate reader — including a
+reader using a screen reader or a magnifier — will be disabled by users within a
+week. The chaff layer is therefore <em>visually lossless</em>: the rendered page is
+pixel-for-pixel the true document. Accessibility is handled by exposing a genuine
+accessible text channel to attested assistive technology (§10.3), not by degrading
+the page.</p>
+
+<h4>4 · Prefer a plausible wrong answer to an obvious refusal</h4>
+<p>This is the least obvious principle and the one that most distinguishes CLOISTER
+from prior extraction-hardening work. An automated pipeline that receives garbage
+<em>knows</em> it received garbage, and escalates — to OCR, to a vision model, to a
+human. A pipeline that receives fluent, plausible, correctly-shaped text
+<strong>stops</strong>. Section 5.4 measures the difference: classic
+glyph-permutation output is statistically conspicuous, and CLOISTER's decoy is not.</p>
+
+<h4>5 · Assume the perimeter has already failed, and price the leak</h4>
+<p>Every copy is unique from the moment it is created. This costs nothing at
+distribution time and converts the eventual, inevitable leak from an
+unresolvable mystery into a named individual — which is the only mechanism that has
+ever reliably changed human behaviour around confidential material.</p>
+</section>
+
+<!-- ======================================================= 4 -->
+<section class="sec">
+<h2>4 &nbsp;Architecture: four layers</h2>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 374" width="700" height="374" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="374" fill="#fcfcfb"/><text x="0" y="18" font-size="14" fill="#0b0b0b" text-anchor="start" font-weight="600">Where each layer intervenes</text><text x="0" y="36" font-size="11" fill="#898781" text-anchor="start" font-weight="400">the document's journey, left to right, and what CLOISTER does at each stage</text><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#898781"/></marker></defs><rect x="0" y="56" width="158" height="88" rx="8" fill="#2a78d6" opacity="0.06"/><rect x="0" y="56" width="158" height="88" rx="8" fill="none" stroke="#2a78d6" stroke-width="1.5"/><text x="12" y="76" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700">1 · AT REST</text><text x="12" y="94" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">Envelope: X25519 +</text><text x="12" y="108" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">ML-KEM-768 hybrid;</text><text x="12" y="122" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">content key bound to a</text><text x="12" y="136" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">posture policy digest</text><rect x="190" y="56" width="158" height="88" rx="8" fill="#2a78d6" opacity="0.06"/><rect x="190" y="56" width="158" height="88" rx="8" fill="none" stroke="#2a78d6" stroke-width="1.5"/><text x="202" y="76" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700">2 · AT OPEN</text><text x="202" y="94" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">Membrane: keys released</text><text x="202" y="108" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">only into a runtime with</text><text x="202" y="122" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">no egress, no capture,</text><text x="202" y="136" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">no ptrace, no clipboard</text><rect x="380" y="56" width="158" height="88" rx="8" fill="#eb6834" opacity="0.06"/><rect x="380" y="56" width="158" height="88" rx="8" fill="none" stroke="#eb6834" stroke-width="1.5"/><text x="392" y="76" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700">3 · IF IT LEAVES</text><text x="392" y="94" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">Chaff: text layer is a</text><text x="392" y="108" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">fluent per-recipient</text><text x="392" y="122" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">decoy; only the raster</text><text x="392" y="136" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">carries the truth</text><rect x="552" y="56" width="148" height="88" rx="8" fill="#1baf7a" opacity="0.06"/><rect x="552" y="56" width="148" height="88" rx="8" fill="none" stroke="#1baf7a" stroke-width="1.5"/><text x="564" y="76" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700">4 · AFTER THE FACT</text><text x="564" y="94" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">Trace: Tardos codeword</text><text x="564" y="108" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">in every copy; probe</text><text x="564" y="122" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">suspect models for the</text><text x="564" y="136" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">canary</text><line x1="166" y1="100" x2="186" y2="100" stroke="#898781" stroke-width="1.5" marker-end="url(#a)"/><line x1="356" y1="100" x2="376" y2="100" stroke="#898781" stroke-width="1.5" marker-end="url(#a)"/><line x1="542" y1="100" x2="562" y2="100" stroke="#898781" stroke-width="1.5" marker-end="url(#a)"/><text x="0" y="178" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700">INGESTION PATHS THIS ADDRESSES</text><rect x="0" y="187" width="700" height="19" fill="#0ca30c" opacity="0.05"/><circle cx="7" cy="196" r="3.5" fill="#0ca30c"/><text x="20" y="200" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Drag-and-drop into a consumer chatbot</text><text x="698" y="200" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="400">blocked at 2, degraded at 3</text><rect x="0" y="208" width="700" height="19" fill="#0ca30c" opacity="0.05"/><circle cx="7" cy="217" r="3.5" fill="#0ca30c"/><text x="20" y="221" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Browser AI sidebar reading the open tab</text><text x="698" y="221" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="400">blocked at 2 (no capture, no DOM egress)</text><rect x="0" y="229" width="700" height="19" fill="#0ca30c" opacity="0.05"/><circle cx="7" cy="238" r="3.5" fill="#0ca30c"/><text x="20" y="242" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Agent / MCP server with filesystem access</text><text x="698" y="242" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="400">blocked at 1 — envelope never opens for it</text><rect x="0" y="250" width="700" height="19" fill="#0ca30c" opacity="0.05"/><circle cx="7" cy="259" r="3.5" fill="#0ca30c"/><text x="20" y="263" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Coding assistant indexing a repository</text><text x="698" y="263" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="400">blocked at 1</text><rect x="0" y="271" width="700" height="19" fill="#0ca30c" opacity="0.05"/><circle cx="7" cy="280" r="3.5" fill="#0ca30c"/><text x="20" y="284" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">OS-level assistant screenshotting the screen</text><text x="698" y="284" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="400">blocked at 2 via capture exclusion</text><rect x="0" y="292" width="700" height="19" fill="#0ca30c" opacity="0.05"/><circle cx="7" cy="301" r="3.5" fill="#0ca30c"/><text x="20" y="305" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Enterprise suite auto-indexing the file store</text><text x="698" y="305" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="400">blocked at 1</text><rect x="0" y="313" width="700" height="19" fill="#d03b3b" opacity="0.05"/><circle cx="7" cy="322" r="3.5" fill="#d03b3b"/><text x="20" y="326" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Recipient photographs the screen with a phone</text><text x="698" y="326" font-size="10.5" fill="#d03b3b" text-anchor="end" font-weight="600">not prevented — traced at 4</text><rect x="0" y="334" width="700" height="19" fill="#d03b3b" opacity="0.05"/><circle cx="7" cy="343" r="3.5" fill="#d03b3b"/><text x="20" y="347" font-size="11" fill="#52514e" text-anchor="start" font-weight="400">Recipient retypes or dictates the content</text><text x="698" y="347" font-size="10.5" fill="#d03b3b" text-anchor="end" font-weight="600">not prevented — traced at 4 if verbatim</text></svg>
+<figcaption><b>Figure 1.</b> The four layers map onto four moments in a document's
+life. Layers 1 and 2 are preventive and require a cooperating platform; layer 3
+travels with the file and works anywhere; layer 4 is unconditional and operates after
+the fact. The lower panel is the ingestion-path inventory from §1.2 with the
+responsible layer named, including the two paths that are honestly marked as not
+prevented.</figcaption>
+</figure>
+
+<h3>4.1 Composition, and why each layer is insufficient alone</h3>
+<p>The layers are deliberately redundant, because each fails differently. The
+envelope alone is defeated the instant an authorised user opens it on a permissive
+machine. The membrane alone is irrelevant once the file is copied to a device without
+the runtime. Chaff alone is defeated by a vision model. Tracing alone prevents
+nothing. Composed, an adversary must defeat a cryptographic binding, a kernel-enforced
+information-flow boundary, a rendering-layer divergence, <em>and</em> a
+collusion-resistant code — and the last one has no technical defeat, only the choice
+not to leak.</p>
+
+<h3>4.2 Layer P1 — The Envelope <span class="tag new">novel binding</span></h3>
+
+<p>A CLOISTER envelope is a COSE/CBOR structure with three parts: a policy, a
+key-encapsulation block, and an AEAD-protected body. The content key is derived as:</p>
+<pre>ss   = HKDF-SHA384( ss_X25519 ‖ ss_MLKEM768 ‖ ct_X25519 ‖ ct_MLKEM768 ‖ H(policy) ‖ suite )
+KW   = AES-256-GCM(ss)  → wraps CK,   AAD = H(policy)
+BODY = AES-256-GCM(CK)  → wraps D,    AAD = H(header)</pre>
+
+<p><b>Why hybrid, and why these parameters.</b> ML-KEM (FIPS 203) is the NIST
+standard key-encapsulation mechanism; ML-DSA (FIPS 204) and SLH-DSA (FIPS 205) are the
+standardised signature schemes, with FN-DSA (FIPS 206) still in draft as of this
+writing.<sup>[3]</sup> We use ML-KEM-768 concatenated with X25519 rather than either
+alone: the combiner is secure if <em>either</em> primitive survives, which protects
+against both a future quantum adversary and an implementation break in the much newer
+lattice scheme. Both ciphertexts are bound into the transcript, following the same
+rule that governs the TLS hybrid designs — otherwise an adversary who can maul one
+ciphertext can produce a related key.</p>
+
+<p>For the legal constituency this is not speculative hygiene. Documents whose
+confidentiality must hold for decades are precisely the harvest-now-decrypt-later
+target, and an envelope is a self-contained ciphertext that an adversary can simply
+keep.</p>
+
+<p><b>The policy digest is load-bearing.</b> <span class="mono">H(policy)</span>
+appears twice: inside the KDF transcript and as AEAD associated data. This is the
+mechanism behind principle 2. An adversary who edits the policy to remove
+<code>egress_blocked</code> does not obtain a permissive envelope; they obtain an
+envelope whose key derivation no longer reproduces the wrapping key. Section 5.2
+verifies this holds even when the adversary also controls the distributor's signing
+key — signature stripping is not a bypass, because the signature was never the
+enforcement.</p>
+
+<p><b>Policy contents.</b> Attribute predicates (matter number, role, institution),
+a posture requirement set, a validity window, a fingerprint-seed identifier, and a
+transparency-log endpoint. Attribute-based access is expressed as predicates
+evaluated by the local broker against verifiable credentials; we deliberately do
+<em>not</em> put ciphertext-policy attribute-based encryption on the critical path.
+CP-ABE is elegant and would let the ciphertext itself carry the policy, but practical
+post-quantum ABE is not production-ready, and a scheme whose security we cannot
+defend to a court is worse than a predicate check plus a signature. It remains a
+roadmap item (§12).</p>
+
+<p><b>Leases make revocation real.</b> The envelope never contains a
+permanently-usable key. The broker issues a lease — a short-lived token, sealed to
+the device's platform root of trust, that the membrane must present to re-derive the
+content key. Offline work is supported by lease duration, not by permanent release.
+Revocation then means "stop issuing leases," which actually works, unlike revocation
+in identity-based IRM where the recipient already holds a usable key.</p>
+
+<p><b>Auditability.</b> Every lease issuance is appended to a tamper-evident
+Merkle log in the manner of certificate transparency, with inclusion proofs returned
+to the requester. This is what converts "we think nobody opened it" into a
+defensible statement — the property that legal and compliance buyers actually pay
+for, and one that no gateway product can offer because gateways do not see access
+that happens off-network.</p>
+
+<h3>4.3 Layer P2 — The One-Way Membrane <span class="tag new">novel application</span></h3>
+
+<p>Decentralised information-flow control has a long research lineage — Asbestos,
+HiStar, Flume, Laminar — which never achieved adoption because it demanded that
+applications be rewritten against a new label model. CLOISTER's contribution is not
+the taint concept; it is the observation that <strong>decryption is a natural,
+narrow, application-agnostic taint source</strong>, and that the adversary of interest
+(an inference pipeline) needs a fat, easily-identified channel: a network socket, a
+clipboard, or a screen capture. You do not need whole-system label propagation to
+stop that. You need one process, launched already-confined, that never had those
+channels to begin with.</p>
+
+<p><b>Ordering is the whole design.</b> Posture is proven, then the key is derived.
+A sandbox applied after decryption protects nothing, because the plaintext already
+exists in a process that could have leaked it. In CLOISTER the reader process
+irreversibly enters the membrane <em>first</em>, then presents the resulting posture
+evidence to obtain the key.</p>
+
+<p><b>What the membrane removes.</b> On Linux, in the proof of concept: an empty
+network namespace (no interfaces, no routes, no resolver), a private IPC namespace, a
+seccomp-BPF filter that returns <code>EPERM</code> for sixteen syscalls covering
+socket creation of every address family, connect/bind/listen/accept, all
+send/receive variants, <code>ptrace</code>, and
+<code>process_vm_readv</code>/<code>writev</code>, plus
+<code>PR_SET_DUMPABLE 0</code> to close same-uid <code>/proc/pid/mem</code> reads and
+<code>PR_SET_NO_NEW_PRIVS</code> to prevent privilege re-acquisition. The filter is
+inherited across <code>execve</code>, which is what makes it cover the real renderer
+and any agent process that tries to attach itself downstream.</p>
+
+<p><b>Landlock where available.</b> Linux's unprivileged Landlock LSM is the right
+long-term substrate: filesystem scoping from ABI 1 (kernel 5.13), TCP
+<code>bind</code>/<code>connect</code> restrictions from ABI 4, abstract-UNIX-socket
+and signal scoping from ABI 6, and UDP rules at ABI 10.<sup>[1]</sup> That
+progression matters because it closes exactly the lateral channels a seccomp filter
+handles bluntly. The kernel in our test environment (6.18.5) was built without
+Landlock, which the implementation detects and reports rather than silently skipping —
+a detail worth stating, because "we applied a sandbox" claims should always be
+verified at runtime rather than assumed from a kernel version.</p>
+
+<p><b>Capture exclusion.</b> The screen is a channel, and in 2026 it is an
+increasingly automated one. On Windows,
+<code>SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE / WDA_MONITOR)</code> is the
+documented mechanism by which a window's content is withheld from capture, and
+Microsoft names it as the way an application excludes itself from Recall
+snapshots.<sup>[4]</sup> Recall is opt-in and shipped generally in April 2025 on
+Copilot+ hardware, which means a document owner cannot assume it is off on a
+recipient's machine — the exclusion call is not optional hardening, it is a
+requirement. macOS provides an equivalent window-sharing exclusion; Wayland can deny
+capture through the portal; X11 fundamentally cannot, and CLOISTER refuses to open
+protected content under a bare X11 session rather than pretend otherwise.</p>
+
+<h3>4.4 Layer D — Semantic Chaff <span class="tag new">novel</span></h3>
+
+<p>This layer applies when prevention is impossible by construction: the document has
+to be emailed to opposing counsel, posted to a course site, or filed with a court.</p>
+
+<p><b>The mechanism.</b> In a PDF, what a human sees and what a machine reads travel
+through two independent channels: glyph selection (via the font's
+<code>CIDToGIDMap</code>) and character reporting (via the <code>ToUnicode</code>
+CMap). Nothing in the format requires them to agree, and no consistency check can
+detect disagreement without rasterising the page and running OCR. CLOISTER builds a
+CIDFontType2 in which the CID space is expanded so that each distinct
+<em>(visible glyph, reported character)</em> pair receives its own CID. The page
+renders the true document; every text extractor reports the decoy.</p>
+
+<p><b>The decoy is congruent, not random.</b> This is the part that matters. The
+decoy is generated to be geometrically identical to the true document — same word
+count, same per-word character lengths, same punctuation positions, same
+capitalisation pattern — and composed of real English words drawn from an innocuous
+topical lexicon. The word choice is driven by a keyed PRF over
+<em>(recipient identifier, word index)</em>, which gives the decoy a second job:
+<strong>it is itself a per-recipient fingerprint.</strong> Recovering the decoy
+identifies which copy was ingested. One artefact, two functions — degradation and
+attribution — and the second is free.</p>
+
+<div class="box hon"><div class="bt">Where the proof of concept is weaker than the design</div>
+<p style="margin:0">Our decoy generator selects length-matched real words from a
+topical lexicon, so the output is lexically real and structurally perfect but not
+grammatical — it reads as word salad on close inspection. Production should generate
+the decoy with a constrained-decoding language model under the same length and
+punctuation template, keyed identically, producing fluent prose. This is
+straightforward and we have not built it. Section 5.4 nonetheless shows that the
+current output is already statistically indistinguishable from natural language by
+the measure a pipeline would plausibly use.</p></div>
+
+<p><b>Why not just strip <code>ToUnicode</code>?</b> Because that is the prior art,
+and it produces gibberish, and gibberish is a signal. Section 5.4 quantifies this:
+gibberish sits far outside the compression profile of natural language, so a
+competent pipeline detects it and escalates to OCR — which recovers everything. The
+chaff approach removes the escalation trigger.</p>
+
+<p><b>Additional degradation options,</b> deployable per-policy: reading-order
+permutation in the content stream; per-page re-keying so that a single recovered
+mapping does not compromise the document; homophonic expansion of the CID space so
+that classical frequency analysis of the reported text is starved; and raster-only
+pages for the highest sensitivity tier. We regard raster-only as a last resort
+because it is hostile to accessibility.</p>
+
+<h3>4.5 Layer T — Traitor tracing and the ingestion oracle</h3>
+
+<p><b>The code.</b> Every distributed copy carries an <span class="mono">m</span>-bit
+codeword from a symmetric Tardos probabilistic fingerprinting code.<sup>[10][11]</sup>
+Tardos's construction is the right choice because its length is
+<span class="mono">O(c² log(1/ε₁))</span> — independent of the number of recipients
+except logarithmically — and because it is provably collusion-resistant under the
+marking assumption, meaning a coalition that compares its copies and constructs a
+hybrid still cannot escape. The original constant was
+<span class="mono">100 c² ln(1/ε₁)</span>; refinements bring the practical constant
+near the asymptotic optimum of <span class="mono">π²/2 ≈ 4.93</span>, which is what
+we use.</p>
+
+<p><b>The embedding channels,</b> in decreasing robustness:</p>
+<table>
+<thead><tr><th style="width:24%">Channel</th><th style="width:19%">Capacity</th><th>Survives</th><th>Defeated by</th></tr></thead>
+<tbody>
+<tr><td>Inter-word kerning micro-offsets<br><span class="fn">measured in &sect;5.6</span></td><td>122 positions per page<br><span class="fn">1 bit per 2 gaps</span></td><td>Printing, photography, screenshots, 72&ndash;300 dpi, JPEG q40, blur, noise, rotation once deskewed &mdash; BER 0.000</td><td>Retyping; uncorrected rotation; blur beyond ~3 px</td></tr>
+<tr><td>Glyph-variant selection</td><td>~0.5 bit per glyph</td><td>Rasterisation, moderate rescaling</td><td>Font substitution; heavy compression</td></tr>
+<tr><td>Chaff decoy word choice</td><td>~1 bit per word</td><td>Text extraction, copy-paste of the text layer</td><td>OCR path (decoy is absent from the image)</td></tr>
+<tr><td>Lexical / synonym substitution in the visible text</td><td>~0.1 bit per word</td><td>Retyping, copy-paste, light paraphrase, OCR</td><td>Heavy paraphrase; model-mediated rewriting</td></tr>
+</tbody></table>
+
+<p>The channels are complementary by design: the kerning channel survives the analog
+hole, the chaff channel survives the digital one, and the lexical channel survives
+retyping. A leak through <em>any</em> path retains at least one channel.</p>
+
+<p><b>The redundancy schedule.</b> A standard traitor-tracing deployment assumes the
+whole work leaks. The AI threat model does not: the canonical incident is someone
+pasting two paragraphs into a chat box. A codeword laid out once across a document is
+starved by such a fragment. CLOISTER therefore embeds each code bit at
+<span class="mono">R</span> independent locations, so that a fragment of relative size
+<span class="mono">s</span> yields <span class="mono">Binomial(R, s)</span>
+observations per bit, resolved by majority vote. Section 5.5 measures the effect and
+it is large: choosing <span class="mono">R</span> for the shortest fragment you care
+about is the difference between tracing nothing and tracing a single paragraph.</p>
+
+<p><b>The ingestion oracle</b> <span class="tag exist">withdrawn</span>. Tracing
+answers "whose copy is this?" once you hold the leaked text. A separate question is
+"did model M ingest document D at all?" An earlier draft of this paper proposed
+answering it by probing a suspect model for the document's canary, on the theory that a
+document seen in training leaves a detectable trace. We built the measurement and the
+answer is no, for two independent reasons — one empirical and one that should have been
+obvious without an experiment. §5.7 reports both. The component is withdrawn from the
+architecture rather than carried as future work.</p>
+
+<h3>4.6 Layer A — Authorship provenance: inverting the academic problem <span class="tag new">novel; now implemented, §5.8</span></h3>
+
+<p>For assignments, the preventive framing is partly wrong. A professor's real
+requirement is not "the student must not be able to feed this to a model" — it is
+"the submission must be the student's own work." Those are different claims, and the
+second is provable while the first is not.</p>
+
+<p>AI-text detection attempts the second claim by inspecting the artefact, which
+does not work: the signal is weak, the false-positive cost is a wrongly accused
+student, and the bias falls on non-native English writers.<sup>[13]</sup> Vanderbilt
+disabled Turnitin's detector for precisely this reason.<sup>[12]</sup></p>
+
+<p>The alternative is to attest the <em>process</em>. A CLOISTER-aware editor
+maintains a hash-chained edit trail and emits a signed credential asserting
+verifiable properties of it — incremental character-level authoring, no bulk
+insertion above a threshold from an unattested source, plausible inter-keystroke
+timing distribution, revision count — bound to the submission's hash in the manner of
+C2PA content credentials. The professor verifies a credential rather than running a
+classifier. A student who writes normally passes automatically; a student who pastes
+2,000 characters from elsewhere produces a credential that says so, without anyone
+inspecting their prose style.</p>
+
+<p><b>The privacy problem, and the answer.</b> A keystroke log is surveillance. No
+student should hand one to an institution, and no institution should want custody of
+one. The design therefore commits to the trail locally and discloses only
+<em>predicates</em> over it: the credential proves "no single insertion exceeded N
+characters" without revealing the text, the timings, or the revision history. This is
+implemented and measured in §5.8 — the zero-knowledge layer turned out to need no
+general-purpose proving system, only Pedersen commitments and range proofs over a handful
+of committed integers. §10.1
+treats the ethics, which we consider a first-order design constraint rather than a
+compliance afterthought.</p>
+
+<h3>4.7 Layer V — The display <span class="tag new">novel; partial</span></h3>
+
+<p>Every spatial defence against OCR has lost. CAPTCHA-style distortion, adversarial
+perturbation, microtype: each degrades the page for the reader at least as much as for the
+machine, and vision models keep improving. So this layer does not attack the image. It
+attacks the <em>sampling</em>.</p>
+
+<p><b>The asymmetry.</b> A human integrates incident light continuously. A screenshot
+captures one composited frame. A rolling-shutter sensor integrates a different short slice
+per scanline. Those gaps follow from how framebuffers and CMOS sensors work, not from any
+property of perception that a better model could erode.</p>
+
+<p><b>Construction 1, against the screenshot.</b> Render the page as the time-average of
+two frames, <span class="mono">F1 = L + d</span> and
+<span class="mono">F2 = L &minus; d</span> for a zero-mean mask. Confine the content to
+luminance [1/3, 2/3] and both frames stay in range, so the average is exact rather than
+approximate. The eye integrates the pair and reads the document; a screenshot captures one
+frame. This needs no cooperation from the operating system, which matters because that is
+exactly what is unavailable on bare X11 and in a web viewer (&sect;6).</p>
+
+<div class="box hon"><div class="bt">Three constructions that failed, and why</div>
+<p style="margin:0">Making the mask a second document <em>failed</em> — overlaying text of
+opposite polarity does not destroy glyph structure, and OCR reads straight through it
+(recovery 1.000). A block-structured mask survived high-pass filtering but fell to
+cell-median subtraction once the grid was aligned (0.973&ndash;1.000), and the grid is about
+256 brute-force guesses scored by "does this read as English". A dense text-shaped mask fell
+to a four-level classifier (1.000), because near-binary content plus near-binary mask sums
+to four distinguishable levels and the map back to ink is injective.</p>
+<p style="margin:.5em 0 0">The general reason none of them can work: mask amplitude is
+bounded by display headroom, headroom trades directly against the contrast the reader needs,
+so per-frame signal-to-mask is about 1 — and OCR beats that by aggregating over a glyph's
+many pixels. Lowering content contrast to widen the mask lowers it for the reader too,
+because the reader sees the average. <b>Single-frame secrecy is not achievable at
+human-readable contrast.</b> Construction 1 therefore defeats off-the-shelf OCR and raises
+cost; it is not secure.</p></div>
+
+<p><b>Why no display-only scheme beats a recording.</b> Suppose the display is a function of
+the document and time alone, and the adversary records every frame. The reader's retina
+integrates light over some window to give <span class="mono">R(W)</span>. The adversary
+holds every frame, so the adversary can compute <span class="mono">R(W)</span> for any
+window, including the reader's. Anything legible to the reader is legible to the recording.
+This disposes of masking, keyed frame schedules and temporal secret sharing in one step, and
+it forces the shape of any solution: <b>the reader must hold a physical element that makes
+their optical path differ from the camera's.</b></p>
+
+<p><b>Construction 2, against the camera.</b> Give the reader a shutter synchronised to the
+display, passing half the frames. Run a four-frame cycle at 240&nbsp;Hz:</p>
+<pre>A = L + d          passed by the shutter
+B = L - d          passed
+X = (1-L) + e      blocked
+Y = (1-L) - e      blocked
+
+(A + B) / 2         = L      the reader sees the true page
+(A + B + X + Y) / 4 = 1/2    uniform grey, exactly, pixel by pixel</pre>
+<p>The second identity holds independently of the masks, because
+<span class="mono">L + (1&minus;L) = 1</span> everywhere. A capture spanning whole cycles
+therefore contains <em>no spatial information</em> — not degraded information, none. An
+ordinary camera at 1/30&nbsp;s integrates eight display frames, which is two whole cycles.
+&sect;5.9 reports what that measures out to.</p>
+
+<p><b>Construction 3, the aperture bound.</b> Render true text only inside a small window
+and fill the rest of the frame with decoy text. Any single capture then contains only the
+window's worth of true content, and the bound is on information present rather than on
+information obscured, so no image processing reaches past it. One detail matters and is easy
+to get wrong: the region outside the aperture must carry <em>different</em> information, not
+<em>faint</em> information. Attenuating the true text by a factor of twelve still lost the
+whole page, because ordinary autocontrast restores it.</p>
+
+<p><b>Costs, which are real and fall on the reader.</b> Construction 1 requires a 2:1
+contrast ratio. Construction 2 halves the duty cycle, so the panel must run brighter, and
+needs 240&nbsp;Hz hardware plus a shutter. Most seriously, frame alternation is a seizure and
+migraine trigger for photosensitive readers: it requires a warning, an opt-out, and an
+alternative route, on the same reasoning that keeps a wall-clock floor out of the default
+policy in &sect;5.8. None of this applies to paper, which keeps only the chaff decoy and the
+kerning fingerprint.</p>
+</section>
+
+<!-- ======================================================= 5 -->
+<section class="sec">
+<h2>5 &nbsp;Implementation and measurements</h2>
+
+<p>Everything in this section was built and run. The point of measuring rather than
+asserting is that two of the four results turned out to require design changes, both
+documented below.</p>
+
+<h3>5.1 What exists</h3>
+<table>
+<thead><tr><th style="width:22%">Component</th><th style="width:11%">Status</th><th style="width:33%">Implementation</th><th>Measured in</th></tr></thead>
+<tbody>
+<tr><td>Envelope (P1)</td><td><span class="yes">working</span></td><td>X25519 + ML-KEM-768 hybrid KEM, HKDF-SHA384 combiner, AES-256-GCM, CBOR/COSE-style header, Ed25519 header signature</td><td>§5.2</td></tr>
+<tr><td>Membrane (P2)</td><td><span class="yes">working</span></td><td>Hand-built seccomp-BPF filter via <code>prctl</code>, network + IPC + UTS namespaces, Landlock probe</td><td>§5.3</td></tr>
+<tr><td>Chaff (D)</td><td><span class="yes">working</span></td><td>PDF generator writing CIDFontType2 / Identity-H with divergent <code>CIDToGIDMap</code> and <code>ToUnicode</code>; keyed congruent decoy generator</td><td>§5.4</td></tr>
+<tr><td>Tracing (T)</td><td><span class="yes">working</span></td><td>Symmetric Tardos code, five collusion attacks, redundancy schedule, accusation test</td><td>§5.5</td></tr>
+<tr><td>Display layer (V)</td><td><span class="part">partial</span></td><td>Complementary frame decomposition, the four-frame shutter cycle, and the aperture bound, with the attacks that break the first of them</td><td>&sect;5.9</td></tr>
+<tr><td>Analog channel (T)</td><td><span class="yes">working</span></td><td>Paired-gap kerning encoder plus an image-domain detector using analytic word windows and sub-pixel centroids</td><td>§5.6</td></tr>
+<tr><td>Ingestion oracle</td><td><span class="no">withdrawn</span></td><td>Measured and abandoned: canary-exposure study on a model with known ground truth</td><td>§5.7</td></tr>
+<tr><td>Authorship provenance (A)</td><td><span class="yes">working</span></td><td>Hash-chained edit trail, Merkle commitment, attested-editor signature, and Pedersen/range-proof predicates disclosed in zero knowledge</td><td>§5.8</td></tr>
+</tbody></table>
+
+<h3>5.2 Envelope</h3>
+<p>Overhead is constant at <strong>1,660 bytes</strong> regardless of document size —
+ML-KEM-768 contributes a 1,088-byte ciphertext, X25519 32 bytes, and the remainder is
+the policy, nonces, wrapped key and signature. Sealing 10 MB took 136 ms; unsealing
+took 15.7 ms, i.e. <strong>636 MB/s</strong>, which means the cryptography is not the
+bottleneck for any realistic document. Device key generation (both keypairs) took
+5.0 ms.</p>
+
+<p>The adversarial tests matter more than the timings:</p>
+<ul>
+<li><b>Fail-closed on every posture predicate.</b> Five predicates were violated one
+at a time; all five denials occurred before any key material was derived.</li>
+<li><b>Policy tampering with signature stripping</b> — rejected at signature
+verification.</li>
+<li><b>Policy downgrade with a valid re-signature,</b> modelling an adversary who has
+compromised the distributor's signing key — rejected at
+<code>InvalidTag</code>, i.e. the AEAD unwrap failed because the KEK no longer
+reproduced. This is the property that distinguishes the design from conventional
+signed-policy IRM: the policy is cryptographically load-bearing, not advisory.</li>
+</ul>
+
+<h3>5.3 Membrane</h3>
+<p>Inside the membrane, socket creation failed with <code>EPERM</code> for
+<code>AF_INET</code>, <code>AF_UNIX</code> <em>and</em> <code>AF_NETLINK</code> — the
+last matters because netlink is a common overlooked path to host configuration. An
+outbound HTTP request failed; <code>curl</code> executed as a child process also
+failed, confirming the filter is inherited across <code>execve</code> and therefore
+covers a downstream renderer or agent runtime.</p>
+
+<p>The legitimate work was unaffected: rendering the protected PDF inside the membrane
+took <strong>419 ms</strong> against a <strong>456 ms</strong> unconfined baseline —
+within run-to-run noise, so the enforcement cost is not measurable at this
+granularity. Total child setup plus probe plus render was 552 ms. The Landlock probe
+returned <code>ENOSYS</code> on the 6.18.5 test kernel and was reported as
+unavailable rather than silently skipped.</p>
+
+<h3>5.4 Chaff</h3>
+
+<p>We rendered a one-page privileged legal memorandum and attacked it with the three
+text-extraction libraries that dominate real document pipelines, plus the
+rasterise-and-OCR path.</p>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 214" width="700" height="214" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="214" fill="#fcfcfb"/><text x="0" y="18" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Confidential content recovered from a CLOISTER-rendered document</text><text x="0" y="35" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">share of 24 probed sensitive terms recovered by each ingestion path</text><line x1="208.0" y1="44" x2="208.0" y2="184" stroke="#e1e0d9" stroke-width="1"/><text x="208.0" y="200" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">0%</text><line x1="274.0" y1="44" x2="274.0" y2="184" stroke="#e1e0d9" stroke-width="1"/><text x="274.0" y="200" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">20%</text><line x1="340.0" y1="44" x2="340.0" y2="184" stroke="#e1e0d9" stroke-width="1"/><text x="340.0" y="200" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">40%</text><line x1="406.0" y1="44" x2="406.0" y2="184" stroke="#e1e0d9" stroke-width="1"/><text x="406.0" y="200" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">60%</text><line x1="472.0" y1="44" x2="472.0" y2="184" stroke="#e1e0d9" stroke-width="1"/><text x="472.0" y="200" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">80%</text><line x1="538.0" y1="44" x2="538.0" y2="184" stroke="#e1e0d9" stroke-width="1"/><text x="538.0" y="200" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">100%</text><text x="196" y="64.96000000000001" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">pdftotext (poppler)</text><line x1="208" y1="50" x2="208" y2="72" stroke="#2a78d6" stroke-width="2.5"/><text x="217" y="64.96000000000001" font-size="11" fill="#2a78d6" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.0%</text><text x="196" y="100.96000000000001" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">pypdf</text><line x1="208" y1="86" x2="208" y2="108" stroke="#2a78d6" stroke-width="2.5"/><text x="217" y="100.96000000000001" font-size="11" fill="#2a78d6" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.0%</text><text x="196" y="136.96" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">pdfplumber</text><line x1="208" y1="122" x2="208" y2="144" stroke="#2a78d6" stroke-width="2.5"/><text x="217" y="136.96" font-size="11" fill="#2a78d6" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.0%</text><text x="196" y="172.96" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">rasterise + OCR / vision</text><rect x="208" y="158" width="330.0" height="22" rx="4" fill="#d03b3b"/><text x="529.0" y="172.96" font-size="11" fill="#ffffff" text-anchor="end" font-weight="700" font-variant-numeric="tabular-nums">100%</text><line x1="208" y1="44" x2="208" y2="184" stroke="#c3c2b7" stroke-width="1"/></svg>
+<figcaption><b>Figure 2.</b> Recovery of 24 sensitive terms — the matter number,
+monetary amounts, percentages, and privilege-bearing vocabulary. All three text
+extractors recovered <b>none</b> of them; the digits they reported were substituted
+plausible digits ("55-OF-2468" for "17-CV-4821"). The OCR path recovered all
+24, which is the honest limit of this layer.</figcaption>
+</figure>
+
+<p>Generic content-word overlap between the extracted decoy and the true document was
+0.133, entirely from everyday vocabulary that both texts share ("assessment",
+"structured", "existing"). On the metric that matters — identifiers, amounts and
+privileged terms — recovery was zero.</p>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 210" width="700" height="210" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="210" fill="#fcfcfb"/><text x="0" y="18" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Can an automated pipeline tell that it was fed a decoy?</text><text x="0" y="35" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">zlib compression ratio of the recovered text</text><rect x="400.0" y="52" width="42.85714285714289" height="122" fill="#2a78d6" opacity="0.08"/><text x="208" y="72.32" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">Original English document</text><rect x="220" y="56" width="212.01428571428573" height="24" rx="4" fill="#898781" opacity="0.4"/><text x="441.01428571428573" y="72.32" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.495</text><text x="208" y="116.32" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">CLOISTER semantic chaff</text><rect x="220" y="100" width="198.3" height="24" rx="4" fill="#2a78d6"/><text x="427.3" y="116.32" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.463</text><text x="208" y="160.32" font-size="11.5" fill="#52514e" text-anchor="end" font-weight="400">Classic glyph-permutation</text><rect x="220" y="144" width="260.2714285714286" height="24" rx="4" fill="#eb6834"/><text x="489.2714285714286" y="160.32" font-size="11.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.607</text><line x1="220" y1="52" x2="220" y2="174" stroke="#c3c2b7" stroke-width="1"/><text x="421.42857142857144" y="191" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">natural-language band</text></svg>
+<figcaption><b>Figure 3.</b> Whether the pipeline can tell it was fooled. zlib
+compression ratio is a cheap, standard proxy for "is this natural language": English
+prose compresses to roughly half its size, random letter strings do not. CLOISTER's
+decoy (0.463) sits inside the natural-language band alongside the original document
+(0.495). Classic glyph-permutation output (0.607) is conspicuously anomalous — which
+is what triggers a fallback to OCR and defeats the whole exercise.</figcaption>
+</figure>
+
+<p>This is the empirical argument for design principle 4. The prior-art technique and
+the CLOISTER technique are equally good at withholding content from a text extractor;
+they differ entirely in whether the extractor <em>notices</em>.</p>
+
+<p><b>The cost of forcing the vision path.</b> The true document is ~493 text tokens.
+Rasterised at 200 dpi, one page is ~4,987 image tokens — a <strong>10.1×</strong>
+inference-cost multiplier, plus OCR error, plus loss of document structure, plus the
+fact that most automated pipelines never attempt it. For an adversary processing one
+document this is an inconvenience. For an adversary processing ten thousand, it is a
+budget line.</p>
+
+<h3>5.5 Tracing</h3>
+<p>Code lengths follow <span class="mono">m ≈ 4.93 c² ln(1/ε₁)</span>: 273 bits for
+a coalition of 2, 1,703 for 5, 6,812 for 10, at
+<span class="mono">ε₁ = 10⁻⁶</span>. With 1,000 recipients and the full document
+recovered, all five collusion attacks — majority, minority, coin-flip, all-ones and
+interleaving — were traced with probability 1.000 and zero false accusations.</p>
+
+<div class="box warn"><div class="bt">Finding 1 — a one-sided accusation test is blind to the minority attack</div>
+<p style="margin:0">Our first implementation accused on
+<span class="mono">S > Zσ</span>. Against the minority-voting attack it named
+<strong>0.000</strong> colluders — a complete failure, not a degradation, because
+minority voting produces a <em>negatively</em> correlated sequence that a one-sided
+test cannot see. Switching to a two-sided test on
+<span class="mono">|S|</span> restored detection to 3.517 of 5 colluders named with
+zero false accusations. Any deployment that copies the textbook one-sided formulation
+inherits this hole.</p></div>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" width="700" height="320" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="320" fill="#fcfcfb"/><text x="0" y="18" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Naming the leaker from a partial copy</text><text x="0" y="35" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">P(at least one of 5 colluders identified) - 1,000 recipients - m = 1,703 bits</text><text x="0" y="50" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">5-sigma two-sided accusation - 500 trials per point - majority-vote attack</text><rect x="0" y="64" width="10" height="10" rx="2" fill="#1baf7a"/><text x="15" y="73" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="600">R = 40</text><rect x="58.0" y="64" width="10" height="10" rx="2" fill="#2a78d6"/><text x="73.0" y="73" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="600">R = 12</text><rect x="116.0" y="64" width="10" height="10" rx="2" fill="#eb6834"/><text x="131.0" y="73" font-size="10.5" fill="#52514e" text-anchor="start" font-weight="600">R = 1  (no redundancy)</text><line x1="58" y1="254" x2="660" y2="254" stroke="#e1e0d9" stroke-width="1"/><text x="49" y="258" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">0%</text><line x1="58" y1="214.5" x2="660" y2="214.5" stroke="#e1e0d9" stroke-width="1"/><text x="49" y="218.5" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">25%</text><line x1="58" y1="175.0" x2="660" y2="175.0" stroke="#e1e0d9" stroke-width="1"/><text x="49" y="179.0" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">50%</text><line x1="58" y1="135.5" x2="660" y2="135.5" stroke="#e1e0d9" stroke-width="1"/><text x="49" y="139.5" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">75%</text><line x1="58" y1="96.0" x2="660" y2="96.0" stroke="#e1e0d9" stroke-width="1"/><text x="49" y="100.0" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">100%</text><text x="58.0" y="272" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">5%</text><text x="178.4" y="272" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">10%</text><text x="298.8" y="272" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">20%</text><text x="419.2" y="272" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">30%</text><text x="539.6" y="272" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">50%</text><text x="660.0" y="272" font-size="10" fill="#898781" text-anchor="middle" font-weight="400" font-variant-numeric="tabular-nums">100%</text><text x="359.0" y="292" font-size="11" fill="#52514e" text-anchor="middle" font-weight="400">fraction of the document that leaked</text><line x1="58" y1="254" x2="660" y2="254" stroke="#c3c2b7" stroke-width="1"/><polyline fill="none" stroke="#1baf7a" stroke-width="2" stroke-linejoin="round" points="58.0,101.7 178.4,97.3 298.8,96.6 419.2,97.6 539.6,97.3 660.0,96.3"/><circle cx="58.0" cy="101.7" r="4.5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="178.4" cy="97.3" r="4.5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="298.8" cy="96.6" r="4.5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="419.2" cy="97.6" r="4.5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="539.6" cy="97.3" r="4.5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="660.0" cy="96.3" r="4.5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><text x="75.0" y="90.68800000000002" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">96%</text><polyline fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round" points="58.0,208.2 178.4,123.2 298.8,99.8 419.2,96.9 539.6,96.6 660.0,97.3"/><circle cx="58.0" cy="208.2" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="178.4" cy="123.2" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="298.8" cy="99.8" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="419.2" cy="96.9" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="539.6" cy="96.6" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><circle cx="660.0" cy="97.3" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/><text x="75.0" y="225.18" font-size="10.5" fill="#2a78d6" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">29%</text><polyline fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round" points="58.0,253.4 178.4,254.0 298.8,252.4 419.2,244.5 539.6,187.6 660.0,96.6"/><circle cx="58.0" cy="253.4" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="178.4" cy="254.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="298.8" cy="252.4" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="419.2" cy="244.5" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="539.6" cy="187.6" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="660.0" cy="96.6" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><text x="75.0" y="242.368" font-size="10.5" fill="#eb6834" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0%</text></svg>
+<figcaption><b>Figure 4.</b> Tracing from a partial leak; majority-vote attack,
+500 trials per point. Without redundancy (<span class="mono">R=1</span>, orange) the
+code is starved: at a 30% fragment detection is 6%, and below 20% it is nil — and
+worse than useless, because with so few observed positions the test also produced
+0.11–0.32 false accusations per trial. With each bit embedded at 12 locations
+detection reaches 83% at a tenth of the document; at <span class="mono">R=40</span>
+(green) a leak of <b>5%</b> — roughly one paragraph — names a colluder 96% of the
+time, with zero false accusations at both <span class="mono">R=12</span> and
+<span class="mono">R=40</span> across every point plotted. Redundancy is chosen for
+the shortest fragment the distributor cares about.</figcaption>
+</figure>
+
+<div class="box warn"><div class="bt">Finding 2 — the accusation threshold must scale with the roster</div>
+<p style="margin:0">At 1,000 recipients, a 5σ threshold produced no false
+accusations. At 50,000 recipients — a realistic university — the same threshold
+produced 0.21 false accusations per trial, because the test is applied once per
+candidate and the multiple-comparisons burden grows with the roster. Raising the
+threshold to 6σ removed false accusations but collapsed detection to 48%, since the
+code was sized for the smaller population. The correct fix is to size the code for
+the roster: at <span class="mono">m = 2,555</span> bits and 6σ, 50,000 recipients gave
+detection <strong>1.000</strong> with <strong>zero</strong> false accusations across
+150 trials of every attack. The same effect appears when a code is starved by a short
+fragment: at <span class="mono">R=1</span> and a 5% fragment the test produced 0.32
+false accusations per trial while detecting essentially nothing. False accusation is
+the failure mode that matters here, and in both cases it is a parameter-selection
+problem that a naive deployment gets wrong.</p></div>
+
+<h3>5.6 The analog channel, measured</h3>
+
+<p>Section 2.2 asserted that a photograph of a CLOISTER-rendered page still carries
+its fingerprint. That claim was unmeasured in the first draft, and it is the load-bearing
+one for the whole attribution argument, so we built the channel and attacked it.</p>
+
+<p>Each inter-word gap is displaced by a sub-perceptual amount, taken in
+<em>pairs that sum to a constant</em>: for a 1 bit the pair becomes
+(base + d, base − d), for a 0 the reverse. Line length is therefore invariant and
+displacement cannot accumulate along the line, so the right margin never moves and the
+perturbation stays strictly local. Detection compares the two gaps of each pair, which
+also cancels any global scaling introduced by printing or photographing. At 11 pt,
+d = 0.275 pt — 7.9% of a space advance — and one Letter page of running text carries
+<strong>122 code positions</strong>.</p>
+
+<p>Extraction does not segment words out of the image. The document owner holds the
+master, so the detector computes each word's expected window analytically from the
+layout and takes an intensity-weighted centroid inside it. This matters more than it
+sounds: our first two detectors tried to find words by ink connectivity, and both
+failed at chance, because a single split or merged glyph shifts every subsequent gap
+index and inverts the bits that follow. The analytic window removes that failure mode
+entirely.</p>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 356" width="700" height="356" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="356" fill="#fcfcfb"/><text x="0" y="17" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">What the analog channel survives</text><text x="0" y="34" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">bit error rate recovering the kerning fingerprint from an image of the page</text><text x="211" y="64.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">clean render, 72-300 dpi</text><line x1="222" y1="54" x2="222" y2="68" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="64.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="64.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="93.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">JPEG q75 and q40</text><line x1="222" y1="83" x2="222" y2="97" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="93.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="93.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="122.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">downscale 50% then restore</text><line x1="222" y1="112" x2="222" y2="126" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="122.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="122.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="151.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">sensor noise, sigma 8</text><line x1="222" y1="141" x2="222" y2="155" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="151.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="151.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="180.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">Gaussian blur, radius 1.5 px</text><line x1="222" y1="170" x2="222" y2="184" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="180.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="180.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="209.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">print-scan simulation</text><line x1="222" y1="199" x2="222" y2="213" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="209.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="209.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="238.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">rotation 5 deg, deskewed</text><line x1="222" y1="228" x2="222" y2="242" stroke="#0ca30c" stroke-width="2.5"/><text x="231" y="238.96" font-size="10.5" fill="#0ca30c" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="274" y="238.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">fingerprint fully recovered</text><text x="211" y="267.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">Gaussian blur, radius 3.0 px</text><rect x="222" y="255" width="9.5" height="18" rx="4" fill="#eb6834"/><text x="239.54545454545453" y="267.96" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.021</text><text x="281.5454545454545" y="267.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">still traceable</text><text x="211" y="296.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">rotation 2 deg, NOT deskewed</text><rect x="222" y="284" width="194.1" height="18" rx="4" fill="#d03b3b"/><text x="424.09090909090907" y="296.96" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.427</text><text x="466.09090909090907" y="296.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">deskew is mandatory</text><text x="211" y="325.96" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">unmarked page (null test)</text><rect x="222" y="313" width="227.3" height="18" rx="4" fill="#898781"/><text x="457.27272727272725" y="325.96" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.500</text><text x="499.27272727272725" y="325.96" font-size="10" fill="#898781" text-anchor="start" font-weight="400">chance - no false signal</text><line x1="222" y1="48" x2="222" y2="335" stroke="#c3c2b7" stroke-width="1"/></svg>
+<figcaption><b>Figure 5.</b> Bit error rate recovering the fingerprint from an image.
+Zero errors across resolution from a 72 dpi thumbnail to 300 dpi, JPEG down to
+quality 40, a 50% downscale-and-restore, Gaussian sensor noise, blur to a 1.5 px
+radius, a print-scan simulation, and rotation up to 5&deg; once deskewed. It degrades
+gracefully at a 3 px blur and fails on <em>uncorrected</em> rotation — deskew is not
+optional. The null test is the important row: an unmarked page scores at chance with
+zero measured displacement, so the detector does not hallucinate a fingerprint that
+was never there.</figcaption>
+</figure>
+
+<p><b>End to end.</b> We embedded one recipient's Tardos codeword, rendered the page,
+and put it through a simulated phone photograph — 1.3&deg; rotation, 0.8 px blur,
+sensor noise, JPEG quality 70. All 122 positions on the page were recovered with
+<strong>zero bit errors</strong>, and the accusation named the correct recipient out
+of 1,000 with no false accusations.</p>
+
+<div class="box warn"><div class="bt">Finding 3 — at this observation count the textbook threshold is unsafe</div>
+<p style="margin:0">One page yields 122 observed positions, and at that count the
+Tardos score is not reliably Gaussian: its tail is driven by however many small
+<span class="mono">p<sub>i</sub></span> the code happened to draw. A fixed 5&sigma;
+threshold produced <strong>0.188 false accusations per trial</strong>. Worse, the
+behaviour is not stable across code realisations — over 24 independently drawn codes
+at <span class="mono">m = 69</span>, detection ranged from <strong>0.03 to
+0.95</strong> at the same nominal parameters. The fix is to calibrate the threshold
+against each code's own simulated null distribution at a chosen family-wise rate, and
+to screen candidate codes at generation time. Calibration drives false accusations to
+zero; the realisation still has to be chosen deliberately rather than assumed.</p></div>
+
+<p>With the threshold calibrated per code, single-page tracing depends on how many
+people could have leaked it:</p>
+
+<table>
+<caption>Table 7 — Naming a single leaker from one photographed page (122 recovered positions)</caption>
+<thead><tr><th class="n">Recipients</th><th class="n">Code bits</th><th class="n">Calibrated threshold</th><th class="n">Detection</th><th class="n">False accusations</th><th class="n">Detection at 5% BER</th></tr></thead>
+<tbody>
+<tr><td class="n">20</td><td class="n">69</td><td class="n">2.8&sigma;</td><td class="n">1.000</td><td class="n">0.000</td><td class="n">0.999</td></tr>
+<tr><td class="n">50</td><td class="n">69</td><td class="n">3.1&sigma;</td><td class="n">1.000</td><td class="n">0.000</td><td class="n">0.998</td></tr>
+<tr><td class="n">200</td><td class="n">92</td><td class="n">4.7&sigma;</td><td class="n">1.000</td><td class="n">0.000</td><td class="n">0.970</td></tr>
+<tr><td class="n">1,000</td><td class="n">92</td><td class="n">5.2&sigma;</td><td class="n">0.997</td><td class="n">0.001</td><td class="n">0.841</td></tr>
+</tbody></table>
+
+<p>A trial team, a seminar, a board — the recipient lists that actually matter — are
+traced from a single photographed page with certainty and no false accusations. A
+thousand-name distribution needs more than one page. And a <em>coalition</em> is a
+different problem: five recipients diffing their copies cannot be traced from one page
+at all, and need on the order of fourteen pages of recovered material, because the
+collusion-resistant code is an order of magnitude longer.</p>
+
+<h3>5.7 The ingestion oracle, and why it is withdrawn</h3>
+
+<p>The oracle was the one component whose value depended on an unmeasured empirical
+claim, so it was the one most worth measuring. We trained a character-level neural
+language model where the ground truth is known — a canary of fixed format inserted into
+the corpus a controlled number of times — and measured the canary's <em>exposure</em>
+after training, following the method of Carlini et al.<sup>[18]</sup></p>
+
+<p>Two methodological points first, because they determine whether the numbers mean
+anything. The gradients were verified numerically to a worst-case relative error of
+5&times;10<sup>&minus;8</sup>; a silent gradient bug would have produced whatever answer
+we went looking for. And the canary format was chosen small enough — 100,000 candidates
+— that the true canary's rank is computed <em>exactly</em> against every alternative
+rather than estimated from a fitted tail.</p>
+
+<div class="box warn"><div class="bt">Finding 4 — an exposure figure alone is not evidence</div>
+<p style="margin:0">In one control run a canary that had <em>never been inserted</em>
+scored 3.8 bits of exposure, because some digit strings are a priori more probable than
+others. Any oracle that reported that number as a finding would be manufacturing
+evidence. Under the null the true canary is exchangeable with every other candidate, so
+its rank is uniform and
+<span class="mono">P(exposure &ge; x) = 2<sup>&minus;x</sup></span> exactly — the
+p-value is analytic. Claiming ingestion at p &lt; 0.001 therefore requires about ten
+bits, and no smaller figure is worth reporting.</p></div>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 470" width="700" height="470" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="470" fill="#fcfcfb"/><text x="0" y="17" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">The ingestion oracle does not reach the density that matters</text><text x="0" y="34" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">canary exposure against how densely one document sits in the training corpus</text><text x="0" y="50" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">fixed compute (1.5 M gradient examples) · one occurrence · exact rank over 100,000 candidates</text><rect x="76" y="100" width="592" height="89.26666666666668" fill="#1baf7a" opacity="0.06"/><line x1="76" y1="189.26666666666668" x2="668" y2="189.26666666666668" stroke="#1baf7a" stroke-width="1.5" stroke-dasharray="5 3"/><text x="84" y="182.26666666666668" font-size="9.5" fill="#1baf7a" text-anchor="start" font-weight="600">evidential threshold — p < 0.001 needs 10 bits of exposure</text><line x1="76" y1="300.0" x2="668" y2="300.0" stroke="#e1e0d9" stroke-width="1"/><text x="67" y="304.0" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">0</text><line x1="76" y1="244.44444444444446" x2="668" y2="244.44444444444446" stroke="#e1e0d9" stroke-width="1"/><text x="67" y="248.44444444444446" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">5</text><line x1="76" y1="188.88888888888889" x2="668" y2="188.88888888888889" stroke="#e1e0d9" stroke-width="1"/><text x="67" y="192.88888888888889" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">10</text><line x1="76" y1="133.33333333333334" x2="668" y2="133.33333333333334" stroke="#e1e0d9" stroke-width="1"/><text x="67" y="137.33333333333334" font-size="10" fill="#898781" text-anchor="end" font-weight="400" font-variant-numeric="tabular-nums">15</text><text x="4" y="177.77777777777777" font-size="10" fill="#52514e" text-anchor="start" font-weight="400">exposure</text><text x="4" y="190.77777777777777" font-size="10" fill="#898781" text-anchor="start" font-weight="400">(bits)</text><line x1="116.82758620689654" y1="300" x2="116.82758620689654" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="116.82758620689654" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻⁷</text><line x1="184.8735632183908" y1="300" x2="184.8735632183908" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="184.8735632183908" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻⁶</text><line x1="252.91954022988506" y1="300" x2="252.91954022988506" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="252.91954022988506" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻⁵</text><line x1="320.9655172413793" y1="300" x2="320.9655172413793" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="320.9655172413793" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻⁴</text><line x1="389.01149425287355" y1="300" x2="389.01149425287355" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="389.01149425287355" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻³</text><line x1="457.05747126436785" y1="300" x2="457.05747126436785" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="457.05747126436785" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻²</text><line x1="525.1034482758621" y1="300" x2="525.1034482758621" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="525.1034482758621" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10⁻¹</text><line x1="593.1494252873564" y1="300" x2="593.1494252873564" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="593.1494252873564" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">1</text><line x1="661.1954022988506" y1="300" x2="661.1954022988506" y2="304" stroke="#c3c2b7" stroke-width="1"/><text x="661.1954022988506" y="317" font-size="10" fill="#898781" text-anchor="middle" font-weight="400">10</text><text x="372.0" y="337" font-size="10.5" fill="#52514e" text-anchor="middle" font-weight="400">occurrences per million characters of training corpus</text><line x1="76" y1="300" x2="668" y2="300" stroke="#c3c2b7" stroke-width="1"/><polyline fill="none" stroke="#2a78d6" stroke-width="2" points="546.7,235.9 567.3,195.8 587.7,232.3 608.2,115.4 628.7,115.4 649.2,115.4"/><circle cx="546.7" cy="235.9" r="5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="567.3" cy="195.8" r="5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="587.7" cy="232.3" r="5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/><circle cx="608.2" cy="115.4" r="5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="628.7" cy="115.4" r="5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><circle cx="649.2" cy="115.4" r="5" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/><text x="662" y="86" font-size="10" fill="#1baf7a" text-anchor="end" font-weight="600">fully memorised — rank 1 of 100,000</text><text x="567.5130551627078" y="257.8888888888889" font-size="10" fill="#eb6834" text-anchor="middle" font-weight="600">collapses into the noise band</text><line x1="116.82758620689654" y1="92" x2="116.82758620689654" y2="300" stroke="#d03b3b" stroke-width="2"/><text x="124.82758620689654" y="114" font-size="10" fill="#d03b3b" text-anchor="start" font-weight="700">one 5 KB document in a 10 TB corpus</text><text x="124.82758620689654" y="129" font-size="9.5" fill="#898781" text-anchor="start" font-weight="400">seven orders of magnitude to the left of</text><text x="124.82758620689654" y="142" font-size="9.5" fill="#898781" text-anchor="start" font-weight="400">anything that can be measured</text><line x1="0" y1="342" x2="700" y2="342" stroke="#e1e0d9" stroke-width="1"/><text x="0" y="358" font-size="11" fill="#0b0b0b" text-anchor="start" font-weight="600">Does more model capacity rescue it? At a fixed density of 0.42 occurrences per million:</text><text x="0" y="386" font-size="10" fill="#52514e" text-anchor="start" font-weight="400" font-variant-numeric="tabular-nums">  119k parameters</text><rect x="118" y="374" width="161" height="13" rx="3" fill="#eb6834"/><text x="282.5292250884619" y="386" font-size="10" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">7.6 bits</text><text x="0" y="410" font-size="10" fill="#52514e" text-anchor="start" font-weight="400" font-variant-numeric="tabular-nums">  236k parameters</text><rect x="118" y="398" width="189" height="13" rx="3" fill="#eb6834"/><text x="310.6745416853789" y="410" font-size="10" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">8.9 bits</text><text x="0" y="434" font-size="10" fill="#52514e" text-anchor="start" font-weight="400" font-variant-numeric="tabular-nums">  471k parameters</text><rect x="118" y="422" width="228" height="13" rx="3" fill="#1baf7a"/><text x="350.04825055022775" y="434" font-size="10" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">10.8 bits</text><text x="418.04825055022775" y="434" font-size="9.5" fill="#898781" text-anchor="start" font-weight="400">crosses the threshold, just</text><text x="0" y="462" font-size="10" fill="#52514e" text-anchor="start" font-weight="600">Quadrupling the parameters buys about three bits. Closing seven orders of magnitude that way is not a plan.</text></svg>
+<figcaption><b>Figure 6.</b> Exposure against the density at which a single document
+sits in the training corpus, at a fixed compute budget so that only dilution varies.
+Above roughly 1.7 occurrences per million characters the canary is memorised perfectly —
+rank 1 of 100,000. Below about 0.8 it collapses into a band between 5 and 9 bits, which
+is not significant at any threshold that would survive scrutiny. The detection floor sits
+around one occurrence per million characters. A 5&nbsp;KB document scraped once into a
+10&nbsp;TB corpus sits at 10<sup>&minus;7</sup> — seven orders of magnitude to the left.
+Quadrupling the model's parameters at fixed density buys roughly three bits, so capacity
+does not close that gap either.</figcaption>
+</figure>
+
+<p><b>The conditions favoured the oracle and it still failed.</b> The corpus was small
+and repetitive, and the models reached a training perplexity of 1.08&ndash;1.18 — they
+had very nearly memorised everything they were shown, which is the most generous regime
+imaginable for canary recovery. A first sweep varying insertion count from 1 to 64 was
+uninformative for exactly that reason: every multiplicity gave perfect exposure, a
+ceiling effect rather than a result. Only when compute was fixed and the corpus grown —
+the condition a frontier model actually trains under — did the relationship become
+visible.</p>
+
+<p><b>The second reason is architectural and needed no experiment.</b> The oracle detects
+<em>training-time</em> ingestion: it asks whether a document was in the corpus. The
+canonical threat in this paper is <em>inference-time</em> — an associate uploads a
+privileged memorandum to a chatbot, a coding assistant reads a repository. None of that
+touches the weights, so there is nothing for an oracle to find. The component was aimed
+at scraping, which matters to publishers and authors, and not at the incident that
+motivates every user described in §1.1. That mismatch should have been caught in design
+review rather than in a measurement.</p>
+
+<p><b>What replaces it.</b> Nothing new is required, because the decoy already does the
+job for the threat that matters. If a model's <em>output</em> reproduces a document's
+per-recipient decoy, that is direct evidence of ingestion, it identifies which copy was
+ingested, it works at inference time, and it needs no access to the model's weights or
+training set. The capability the oracle was invented to provide already exists in
+Layer D, one section earlier.</p>
+
+<h3>5.8 Authorship provenance</h3>
+
+<p>Layer A was specified in §4.6 and has since been built, including the part the earlier
+draft deferred: the zero-knowledge disclosure. A student proves statements such as "no
+single insertion in my edit trail exceeded 400 characters" using Pedersen commitments and
+bit-decomposition range proofs in a 2048-bit group with a 256-bit prime-order subgroup.
+Proving takes about 350&nbsp;ms and verification about the same, each proof is 16&nbsp;KB,
+and a three-predicate credential is 54&nbsp;KB. Seven forgery attempts — retargeting the
+bound, tampering with either commitment, mutating a response, reordering and dropping
+bits, replaying under a different context — were all rejected, and the prover refuses to
+attempt a false statement rather than emitting a proof that will not verify.</p>
+
+<p><b>The architecture has to solve two opposed problems, and conflating them is the
+trap.</b> Zero-knowledge proofs give the student privacy but supply <em>no integrity
+whatsoever</em>: an author could commit to whatever statistics suited them and prove
+things about those. Integrity comes from elsewhere — an attested editor computes the
+statistics, commits to them, and signs the commitments alongside the trail root and the
+submission hash. The proofs then bind to values the author cannot change. A design that
+shipped only the proofs would look cryptographic and establish nothing.</p>
+
+<p>A privacy audit of the output found and removed a leak: the number of edit events was
+being repeated in cleartext in the attestation body, although it was already committed.
+After that, of 861 recorded edit events, zero timestamps and zero statistic values appear
+anywhere in the credential. What the instructor learns is the policy bounds, pass or fail
+against each, the submission hash, the trail root, and which editor signed it.</p>
+
+<table>
+<caption>Table 8 — Five simulated writing sessions, all producing the same length of text</caption>
+<thead><tr><th style="width:34%">Session</th><th style="width:26%">Verdict</th><th>Which predicates failed</th></tr></thead>
+<tbody>
+<tr><td>Honest, deliberate (65 min)</td><td><span class="yes">credential complete</span></td><td>none</td></tr>
+<tr><td>Honest, fluent (3 min)</td><td><span class="yes">credential complete</span></td><td>none</td></tr>
+<tr><td>One bulk paste</td><td><span class="no">incomplete</span></td><td>all three</td></tr>
+<tr><td>Pasted in twelve chunks</td><td><span class="no">incomplete</span></td><td>all three</td></tr>
+<tr><td><b>Model output retyped by hand</b></td><td><span class="part">credential complete</span></td><td>none — this is the limit</td></tr>
+</tbody></table>
+
+<p>The last row is the fundamental limit, and the test suite asserts it rather than
+hiding it: this layer attests a <em>process</em>, not an <em>origin</em>. Someone who
+reads model output off a second screen and types it in at human pace satisfies every
+predicate. What changes is that the shortcut stops being free, and the honest student
+stops being at the mercy of a classifier.</p>
+
+<div class="box warn"><div class="bt">Finding 5 — a wall-clock floor is a false-accusation machine</div>
+<p style="margin:0">The obvious predicate to add is a minimum elapsed time, and measuring
+it removed it from the default policy. Two simulated honest sessions producing identical
+output took 65 minutes and 3 minutes; a thirty-minute floor passes the first and fails the
+second. The second is a fluent writer, not a cheat. A floor penalises fluency, rewards
+leaving the editor open, and reproduces exactly the harm that §1.3 criticises detectors
+for. It ships disabled, behind an explicit flag, with the caveat attached. Rhythm
+statistics were excluded for the same reason and are worse: they misfire on dictation, on
+motor impairment, and on anyone drafting in a second language.</p></div>
+
+<h3>5.9 The display layer, measured</h3>
+
+<p>Every figure here is a true-content recovery against a page rendered by the four-frame
+cycle of &sect;4.7, scored by running Tesseract on the capture with autocontrast applied —
+the attacker is given every advantage the harness can give.</p>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 456" width="700" height="456" font-family='system-ui,-apple-system,"Segoe UI",sans-serif'><rect width="700" height="456" fill="#fcfcfb"/><text x="0" y="17" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">What each optical capture path actually recovers</text><text x="0" y="34" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">true-content recovery from a display running the four-frame cycle at 240 Hz;</text><text x="0" y="48" font-size="10.5" fill="#898781" text-anchor="start" font-weight="400">the reader wears a shutter synchronised to pass half the frames</text><text x="0" y="80" font-size="9.5" fill="#1baf7a" text-anchor="start" font-weight="700">DEFEATED BY THE CONSTRUCTION</text><text x="239" y="110.24" font-size="10.5" fill="#0b0b0b" text-anchor="end" font-weight="600">reader, through the shutter</text><rect x="250" y="98" width="230" height="17" rx="4" fill="#1baf7a"/><text x="488.0" y="110.24" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">1.000</text><text x="528.0" y="110.24" font-size="10" fill="#1baf7a" text-anchor="400" font-weight="400">the page is legible</text><text x="239" y="138.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">camera, 1/30 s  (8 display frames)</text><line x1="250" y1="128" x2="250" y2="141" stroke="#1baf7a" stroke-width="2.5"/><text x="259" y="138.24" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="302" y="138.24" font-size="10" fill="#898781" text-anchor="start" font-weight="400">uniform grey</text><text x="239" y="166.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">camera, 1/60 s  (4 frames)</text><line x1="250" y1="156" x2="250" y2="169" stroke="#1baf7a" stroke-width="2.5"/><text x="259" y="166.24" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="302" y="166.24" font-size="10" fill="#898781" text-anchor="start" font-weight="400">uniform grey</text><text x="239" y="194.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">camera, 1/120 s  (2 frames)</text><line x1="250" y1="184" x2="250" y2="197" stroke="#1baf7a" stroke-width="2.5"/><text x="259" y="194.24" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="302" y="194.24" font-size="10" fill="#898781" text-anchor="start" font-weight="400">uniform grey</text><text x="239" y="222.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">exposure straddling two cycles</text><line x1="250" y1="212" x2="250" y2="225" stroke="#1baf7a" stroke-width="2.5"/><text x="259" y="222.24" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="302" y="222.24" font-size="10" fill="#898781" text-anchor="start" font-weight="400">uniform grey</text><text x="239" y="250.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">rolling shutter, 20 px bands</text><line x1="250" y1="240" x2="250" y2="253" stroke="#1baf7a" stroke-width="2.5"/><text x="259" y="250.24" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="302" y="250.24" font-size="10" fill="#898781" text-anchor="start" font-weight="400">uniform grey</text><text x="239" y="278.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">single frame, off-the-shelf OCR</text><line x1="250" y1="268" x2="250" y2="281" stroke="#1baf7a" stroke-width="2.5"/><text x="259" y="278.24" font-size="10.5" fill="#1baf7a" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.000</text><text x="302" y="278.24" font-size="10" fill="#898781" text-anchor="start" font-weight="400">masked</text><text x="239" y="306.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">aperture bound, one capture</text><rect x="250" y="294" width="15" height="17" rx="4" fill="#1baf7a"/><text x="273.41" y="306.24" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">0.067</text><text x="313.41" y="306.24" font-size="10" fill="#898781" text-anchor="400" font-weight="400">only the window is there</text><text x="0" y="334" font-size="9.5" fill="#d03b3b" text-anchor="start" font-weight="700">AVAILABLE ONLY TO A CAMERA THAT ISOLATES SINGLE DISPLAY FRAMES</text><text x="239" y="362.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">single frame + cell-median unmask</text><rect x="250" y="350" width="230" height="17" rx="4" fill="#d03b3b"/><text x="488.0" y="362.24" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">1.000</text><text x="528.0" y="362.24" font-size="10" fill="#d03b3b" text-anchor="600" font-weight="400">recovered</text><text x="239" y="390.24" font-size="10.5" fill="#52514e" text-anchor="end" font-weight="400">frame-resolved + pairwise search</text><rect x="250" y="378" width="230" height="17" rx="4" fill="#d03b3b"/><text x="488.0" y="390.24" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="700" font-variant-numeric="tabular-nums">1.000</text><text x="528.0" y="390.24" font-size="10" fill="#d03b3b" text-anchor="600" font-weight="400">recovered in 28 trials</text><line x1="250" y1="94" x2="250" y2="397" stroke="#c3c2b7" stroke-width="1"/><text x="0" y="426" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="600">The full-cycle average is uniform grey to within 5.55e-17 — exactly, pixel by pixel,</text><text x="0" y="440" font-size="10.5" fill="#0b0b0b" text-anchor="start" font-weight="600">because L + (1-L) = 1 everywhere. Such a capture holds no spatial information at all.</text></svg>
+<figcaption><b>Figure 7.</b> What each optical capture path recovers. Everything that
+integrates a whole display frame or more returns nothing, because the cycle's average is
+uniform grey — measured at 5.55&times;10<sup>&minus;17</sup> deviation, which is
+floating-point exact rather than merely small. That covers auto-exposure video and
+auto-exposure photography of a screen, including rolling shutter. What it does not cover is
+a camera that isolates a single display frame: a deliberate manual shutter around
+1/500&nbsp;s at 240&nbsp;Hz, followed by cell-median unmasking or a pairwise frame search,
+recovers the page in full. The pairwise search found the complementary pair in 28 trials.
+</figcaption>
+</figure>
+
+<div class="box warn"><div class="bt">Finding 6 — a keyed frame schedule is worth nothing</div>
+<p style="margin:0">The obvious hardening is to keep the frame schedule secret so an
+adversary does not know which frames to combine. It fails, and not marginally: candidate
+combinations can be scored by "does the result read as text", which is a trivial test, so
+the search stays <span class="mono">O(n²)</span> over frame pairs and finishes in seconds.
+Secrecy of the schedule is not a security parameter. The only quantity that helps is how
+many frames the adversary's sensor can isolate.</p></div>
+
+<p>The aperture bound behaves differently, and it is the only construction in this section
+whose guarantee is not contingent on the adversary's equipment. At apertures of 12 to 60
+characters, a single capture recovered 0.053 to 0.067 of the document's content words and
+would need 33 to 165 separate captures to cover one page. That holds because the true text
+is <em>absent</em> from the frame outside the window, so there is nothing for a better
+attack to find. Its cost is borne in reading comfort, and we have not measured that.</p>
+
+<h3>5.10 Locking the numbers down, and what that turned up</h3>
+
+<p>Every claim above is now a named test, and every bug measurement found is a named
+regression test — 52 in total. The regression tests are built to an unusual rule, because
+the ordinary kind would not have helped here: each one registers <em>two</em>
+implementations, the fixed one and a faithful reconstruction of the original broken one,
+and asserts that the broken one <em>fails</em>. If it passes, the test is reported
+<span class="mono">TOOTHLESS</span> and the suite exits non-zero. This is mutation testing
+narrowed to the mutations that actually occurred, which is the subset already proven able
+to survive review. The harness also snapshots module state around every test, because a
+mutation is installed by monkeypatching and a mistaken restore does not look like a leak —
+it looks like five unrelated tests regressing at once, in another file.</p>
+
+<p>Writing it found three more defects, which is the honest argument for having done it.</p>
+
+<div class="box warn"><div class="bt">Finding 7 — the photograph model was the weak link, not the detector</div>
+<p style="margin:0">Every degradation ladder in §5.4 held the page at full white. That
+hides two things at once: the <span class="mono">uint8</span> clip discards the negative
+half of the sensor noise, and there is no paper pedestal for a threshold measured from zero
+to fall below. Give the detector grey, unevenly lit paper — an ordinary phone photograph —
+and it <b>failed at chance</b>, while its diagnostics still looked healthy. The tell was
+a median gap margin of 5.6&nbsp;px against a 1.09&nbsp;px signal: measurement error being
+read as signal. Two fixes were needed. A quadratic illumination surface is fitted from
+low-percentile samples and subtracted (six coefficients — enough for a ramp and the
+quadratic bowl of vignetting, too few to follow a text line), and what remains is
+thresholded relative to the local paper level with a noise-floor term. Re-measured across
+eight lighting conditions from flatbed scan to a dim room with off-centre vignetting,
+three recipients each: <b>24 of 24 traced, 0 false accusations</b>, bit error rate 0.0% in
+20 of 24 and worst 2.9%.</p>
+<p style="margin:.5em 0 0">The general lesson is uncomfortable and worth stating plainly:
+<b>the degradation model was written by the same people who wrote the detector</b>, and it
+was flattering in a way nobody noticed for an entire measurement campaign. A simulated
+attack ladder is a claim about the adversary, not a measurement of one.</p></div>
+
+<div class="box hon"><div class="bt">Finding 8 — embedded redundancy was being thrown away on recovery</div>
+<p style="margin:0">The renderer cycles the codeword through however many gaps the document
+provides, so a page-filling page carries a 69-bit code about three times over. The detector
+assigned each position as it read it, so the last measurement silently overwrote the
+earlier ones and the redundancy bought nothing. Combining the repeats as <em>signed</em>
+evidence rather than as a majority vote on hard bits — a gap measured with a 2&nbsp;px
+margin deserves more weight than one measured with 0.1&nbsp;px — raises the combined
+margin from 1.01&nbsp;px to 3.10&nbsp;px, exactly the redundancy factor, and cuts the bit
+error rate on a dim photograph by roughly three.</p></div>
+
+<div class="box warn"><div class="bt">Finding 9 — a stale render is a wrong accusation</div>
+<p style="margin:0">The rasteriser collected every image matching its output prefix, and
+the trace command reuses a fixed working directory. A one-page brief traced after an
+eight-page one therefore saw <em>eight</em> reference pages, seven belonging to a different
+document, and matched the evidence against whichever fitted best. Nothing warned. This is
+the worst class of bug this system can have, because its output is an accusation against a
+named person, and it was found by running the command-line tool twice in a row rather than
+by any amount of reading. The detector now also warns when gap margins are far larger than
+the embedded displacement, which is the signature of a misregistered page in general
+rather than of this one cause.</p></div>
+
+<h3>5.11 What these numbers do and do not establish</h3>
+<p>They establish that the mechanisms work as specified, on a real document, against
+the tools an adversary reaches for first. They do <em>not</em> establish that a
+determined adversary cannot recover the document — the OCR row of Figure 2 says
+plainly that one can. They measure OCR, not a multimodal model, which would likely do
+at least as well. They include no user study. The layer most important to the academic
+case is built but not deployable: it depends on an attested editor producing a real edit
+trail, and every measurement in §5.8 used synthesised trails instead. And after Finding 7,
+the sentence that deserves the most weight is this one: <b>every degradation figure here
+is a simulation</b>, and simulations written alongside the detector they test have already
+proven able to flatter it for months. Photograph real printed copies before relying on any
+of the tracing numbers.</p>
+</section>
+
+<!-- ======================================================= 6 -->
+<section class="sec">
+<h2>6 &nbsp;Cross-platform enforcement</h2>
+
+<p>Layers P1, D and T are platform-independent: they are file-format and
+cryptographic constructions. Layer P2 is not, and honesty about per-platform
+capability is what separates a deployable design from a diagram. The distinction that
+matters throughout is <strong>block</strong> versus <strong>observe</strong> — a
+mechanism that can only report a violation after it happened is telemetry, not
+enforcement.</p>
+
+<table class="flow">
+<caption>Table 4 — Membrane enforcement by platform</caption>
+<thead><tr><th style="width:20%">Control</th><th style="width:20%">Linux</th><th style="width:20%">macOS</th><th style="width:20%">Windows</th><th>Web viewer</th></tr></thead>
+<tbody>
+<tr><td>Deny network egress to the reader process</td><td><span class="yes">Block</span><br><span class="fn">netns + seccomp; Landlock ABI≥4 for TCP, ABI 10 for UDP</span></td><td><span class="yes">Block</span><br><span class="fn">Network Extension content filter; ESF auth events</span></td><td><span class="yes">Block</span><br><span class="fn">WFP per-process filter; AppContainer</span></td><td><span class="yes">Block</span><br><span class="fn">n/a — plaintext never reaches the client</span></td></tr>
+<tr><td>Deny file writes outside a sealed scratch</td><td><span class="yes">Block</span><br><span class="fn">Landlock FS; mount namespace</span></td><td><span class="yes">Block</span><br><span class="fn">App Sandbox; ESF AUTH_OPEN</span></td><td><span class="yes">Block</span><br><span class="fn">Minifilter driver</span></td><td><span class="yes">Block</span></td></tr>
+<tr><td>Exclude window from screen capture</td><td><span class="part">Partial</span><br><span class="fn">Wayland portal denial; <b>X11 cannot</b> — but see the row below</span></td><td><span class="yes">Block</span><br><span class="fn">Window sharing exclusion</span></td><td><span class="yes">Block</span><br><span class="fn">SetWindowDisplayAffinity; also excludes from Recall<sup>[4]</sup></span></td><td><span class="no">No</span><br><span class="fn">no web API can prevent capture</span></td></tr>
+<tr><td>Gate clipboard writes</td><td><span class="part">Partial</span><br><span class="fn">Wayland compositor-mediated; X11 weak</span></td><td><span class="part">Partial</span><br><span class="fn">pasteboard is app-cooperative</span></td><td><span class="yes">Block</span><br><span class="fn">clipboard format restriction in-process</span></td><td><span class="part">Partial</span></td></tr>
+<tr><td>Prevent debugger / memory inspection</td><td><span class="yes">Block</span><br><span class="fn">seccomp ptrace deny + DUMPABLE 0</span></td><td><span class="part">Partial</span><br><span class="fn">hardened runtime; SIP-dependent</span></td><td><span class="part">Partial</span><br><span class="fn">PPL for signed processes</span></td><td><span class="yes">Block</span></td></tr>
+<tr><td>Seal keys to hardware root of trust</td><td><span class="yes">Block</span><br><span class="fn">TPM 2.0 policy session</span></td><td><span class="yes">Block</span><br><span class="fn">Secure Enclave; App Attest</span></td><td><span class="yes">Block</span><br><span class="fn">TPM 2.0 + VBS</span></td><td><span class="no">No</span><br><span class="fn">server-side custody instead</span></td></tr>
+<tr><td>Defeat a single screenshot without OS help</td><td colspan="4"><span class="part">Partial, platform-independent</span> &nbsp;&mdash;&nbsp; complementary frame decomposition (&sect;4.7) defeats off-the-shelf OCR on any single captured frame on every platform including bare X11 and the web viewer, and falls to a targeted unmasking attack. This is the only row here that does not depend on the operating system.</td></tr>
+<tr><td>Defeat a camera pointed at the screen</td><td colspan="4"><span class="yes">Blocked for ordinary equipment</span> &nbsp;&mdash;&nbsp; the four-frame shutter cycle returns uniform grey to any capture spanning whole cycles (&sect;5.9). Requires 240&nbsp;Hz hardware and a shutter at the reader, and does not survive a camera that isolates single frames.</td></tr>
+<tr><td>Attest the renderer binary's identity</td><td><span class="part">Partial</span><br><span class="fn">IMA/EVM where enabled</span></td><td><span class="yes">Block</span><br><span class="fn">code signing + App Attest</span></td><td><span class="yes">Block</span><br><span class="fn">code integrity + attestation</span></td><td><span class="yes">Block</span></td></tr>
+</tbody></table>
+
+<p>Two conclusions follow. First, <strong>Windows and macOS are the strong
+platforms</strong> for the membrane, which is the opposite of what a Linux-centric
+security design would predict; both offer capture exclusion and hardware key sealing
+that Linux desktops largely do not. Second, <strong>the zero-install web viewer is
+the weakest posture but the most adoptable</strong> — it keeps plaintext server-side
+so no key ever reaches an untrusted client, at the cost of being defenceless against
+screen capture. It is the right default for external recipients precisely because
+they will not install anything, and it should always be paired with layers D and T.</p>
+</section>
+
+<!-- ======================================================= 7 -->
+<section class="sec">
+<h2>7 &nbsp;What is actually new here</h2>
+
+<p>Most of the primitives CLOISTER uses are not ours, and claiming otherwise would
+undermine the parts that are. The table separates them.</p>
+
+<table class="flow">
+<caption>Table 5 — Prior art and delta</caption>
+<thead><tr><th style="width:26%">Element</th><th style="width:8%">Status</th><th style="width:30%">Prior art</th><th>CLOISTER's delta</th></tr></thead>
+<tbody>
+<tr><td>Hybrid PQ key establishment</td><td><span class="tag exist">existing</span></td><td>FIPS 203; TLS hybrid designs</td><td>Used as-is. Applied to documents rather than transport, motivated by decade-scale confidentiality horizons.</td></tr>
+<tr><td>Encrypted container with rights policy</td><td><span class="tag exist">existing</span></td><td>Purview Information Protection, Adobe DRM, Virtru, OpenTDF</td><td>Used as-is at the container level.</td></tr>
+<tr><td><b>Posture-gated decryption</b></td><td><span class="tag new">novel</span></td><td>TPM sealing binds keys to <em>boot state</em>; IRM binds to <em>identity</em>; remote attestation reports posture <em>advisorily</em></td><td>Binds the content key to a digest of a <em>runtime information-flow posture</em> — the demonstrated absence of egress, capture, clipboard and debug paths — and makes that digest load-bearing in the KDF, so policy downgrade destroys the key even for an adversary holding the signing key. Verified in §5.2.</td></tr>
+<tr><td>Information-flow control / taint tracking</td><td><span class="tag adapt">adapted</span></td><td>Asbestos, HiStar, Flume, Laminar; CamFlow</td><td>Uses decryption as a narrow, application-agnostic taint source and confines <em>before</em> key release, avoiding the whole-system label propagation that blocked DIFC adoption. Targets inference pipelines specifically, which need wide channels.</td></tr>
+<tr><td>Extraction-hostile documents</td><td><span class="tag adapt">adapted</span></td><td>Stripped or scrambled <code>ToUnicode</code> CMaps; glyph permutation; raster-only PDFs</td><td>All prior variants produce <em>detectable</em> gibberish, which triggers OCR escalation. Measured in §5.4.</td></tr>
+<tr><td><b>Semantic chaff with congruent decoys</b></td><td><span class="tag new">novel</span></td><td>—</td><td>Text layer carries a fluent, length-congruent, topically coherent decoy, so extraction terminates confidently on the wrong document. Compression profile inside the natural-language band; no escalation trigger.</td></tr>
+<tr><td><b>Decoy–canary duality</b></td><td><span class="tag new">novel</span></td><td>Canary tokens and honeytokens are separate inert artefacts</td><td>The decoy <em>is</em> the fingerprint: the same construction degrades the machine-readable copy and identifies which copy was ingested, at zero additional payload.</td></tr>
+<tr><td>Collusion-resistant fingerprinting</td><td><span class="tag exist">existing</span></td><td>Boneh–Shaw; Tardos; Škorić et al.</td><td>Code used as published, with the two parameter-selection corrections in §5.5.</td></tr>
+<tr><td><b>Fragment-sized redundancy schedule</b></td><td><span class="tag new">novel</span></td><td>Traitor tracing assumes the whole work leaks</td><td>Embeds each code bit at <span class="mono">R</span> locations sized to the shortest fragment of interest, because the AI threat model's canonical leak is a pasted paragraph. Turns an untraceable 5% excerpt into a 99% identification.</td></tr>
+<tr><td><b>Sampling-asymmetry display</b></td><td><span class="tag new">novel, partial</span></td><td>Anti-screenshot displays; visual cryptography (Naor&ndash;Shamir); shutter-based 3D systems</td><td>Uses the reader's temporal integration as the decoding operator, so the page exists only as a time-average and no single frame carries it. Includes the necessity argument showing that no display-only scheme survives a full recording, and a four-frame cycle whose full-cycle average is provably information-free (§5.9).</td></tr>
+<tr><td><b>Aperture information bound</b></td><td><span class="tag new">novel</span></td><td>Foveated rendering, used for bandwidth rather than secrecy</td><td>Bounds what a capture can <em>contain</em> rather than how legible it is, by filling the non-foveal field with decoy text instead of attenuated content. The only construction in this paper whose guarantee does not depend on the adversary's equipment.</td></tr>
+<tr><td>Ingestion oracle</td><td><span class="tag exist">withdrawn</span></td><td>Membership inference; data-provenance probing</td><td>Proposed, measured, abandoned. The detection floor is ~7 orders of magnitude above the density a single scraped document has, and the mechanism addresses training-time ingestion while the threat this paper describes is inference-time (§5.7).</td></tr>
+<tr><td>Content provenance credentials</td><td><span class="tag adapt">adapted</span></td><td>C2PA / Content Credentials; document version history</td><td>Extended from "where did this file come from" to "was this text authored incrementally by a human", with predicate-only disclosure.</td></tr>
+<tr><td><b>ZK authorship predicates</b></td><td><span class="tag new">novel, built</span></td><td>Keystroke-log forensics; proctoring</td><td>Proves properties of an edit trail without disclosing it, replacing unreliable stylometric detection with a verifiable process claim and removing the surveillance requirement. Implemented and measured (§5.8), including the separation of privacy from integrity that the proofs alone cannot provide.</td></tr>
+</tbody></table>
+
+<p>The defensible summary: <strong>four novel mechanisms</strong> (posture-gated
+decryption, semantic chaff, the decoy–canary duality, the fragment-sized redundancy
+schedule), <strong>two novel designs not yet built</strong> (the ingestion oracle,
+ZK authorship predicates), and a synthesis whose value is that the layers cover each
+other's failure modes.</p>
+</section>
+
+<!-- ======================================================= 8 -->
+<section class="sec">
+<h2>8 &nbsp;Deployment postures</h2>
+
+<p>One protocol, four postures, chosen per recipient rather than per organisation.
+This matters because the interesting recipients are usually outside your control.</p>
+
+<table>
+<thead><tr><th style="width:16%">Posture</th><th style="width:22%">Recipient installs</th><th style="width:22%">Guarantee</th><th>Right for</th></tr></thead>
+<tbody>
+<tr><td><b>Format-only</b></td><td>Nothing</td><td>Layers D + T. Text pipelines get the decoy; every copy is traceable.</td><td>Course handouts, filings, anything sent to a stranger. The adoption default.</td></tr>
+<tr><td><b>Web viewer</b></td><td>Nothing (browser)</td><td>+ plaintext never leaves the server; access is logged and revocable</td><td>Opposing counsel, external reviewers, one-off recipients</td></tr>
+<tr><td><b>Desktop viewer</b></td><td>Signed app, macOS / Windows / Linux</td><td>Full membrane: no egress, capture-excluded, hardware-sealed leases</td><td>Trial teams, research groups, anyone handling a matter repeatedly</td></tr>
+<tr><td><b>Managed endpoint</b></td><td>App + platform policy</td><td>+ kernel-enforced filesystem and network scoping; renderer attestation</td><td>Firms and institutions with device management</td></tr>
+</tbody></table>
+
+<p>The adoption path runs left to right, and the leftmost posture must be genuinely
+useful on its own — a professor should be able to protect an exam by exporting it
+through CLOISTER, with no infrastructure, and get the decoy and the fingerprint for
+free. Systems that require the recipient to cooperate before delivering any value do
+not get deployed.</p>
+</section>
+
+<!-- ======================================================= 9 -->
+<section class="sec">
+<h2>9 &nbsp;Security analysis</h2>
+
+<table class="flow">
+<caption>Table 6 — Attacks and responses</caption>
+<thead><tr><th style="width:24%">Attack</th><th style="width:8%">Tier</th><th>Response and residual risk</th></tr></thead>
+<tbody>
+<tr><td>Upload the protected PDF to a chatbot</td><td>A1</td><td><span class="yes">Defeated.</span> The model receives the decoy and answers about facilities maintenance. Residual: a vision-capable model given the <em>rendered</em> page succeeds — but consumer upload paths overwhelmingly extract text first.</td></tr>
+<tr><td>Screenshot, then OCR or vision model</td><td>A2</td><td><span class="part">Cost imposed, traced.</span> ~10× tokens, OCR error, lost structure, manual per-page effort. Under the desktop posture the capture itself is blocked, and under Layer V a single captured frame yields nothing to off-the-shelf OCR on any platform (&sect;5.9). The kerning fingerprint survives.</td></tr>
+<tr><td>Frequency analysis on the reported text</td><td>A3</td><td><span class="yes">Addressed.</span> A monoalphabetic mapping would be trivially solvable, which is why the construction is per-(glyph, reported-char) pair with per-page re-keying and optional homophonic expansion — there is no single small permutation to solve.</td></tr>
+<tr><td>Strip the watermark by diffing several copies</td><td>A3</td><td><span class="part">Traced.</span> This is exactly the collusion model Tardos codes are proven against; §5.5 measures five attack strategies. Residual: coalitions materially larger than the <span class="mono">c</span> the code was sized for.</td></tr>
+<tr><td>Retype the document</td><td>A2</td><td><span class="part">Partially traced.</span> Kerning and glyph channels are destroyed; the lexical channel survives verbatim retyping. Heavy paraphrase defeats tracing. Effort scales linearly with length, which is the deterrent.</td></tr>
+<tr><td>Photograph the screen, auto exposure</td><td>A2</td><td><span class="yes">Defeated</span> under Layer V with the shutter: any exposure spanning whole display cycles records uniform grey, exactly (§5.9). Without Layer V, not prevented but traced by the kerning channel.</td></tr>
+<tr><td>Photograph with a deliberate short shutter, then unmask</td><td>A3</td><td><span class="part">Not prevented, traced.</span> Isolating a single display frame and applying cell-median unmasking recovers the page. Requires knowing the technique, setting a manual shutter around 1/500&nbsp;s, and implementing a grid search — a materially higher bar than pressing a key, and the kerning fingerprint still survives.</td></tr>
+<tr><td>Record the reading session on video</td><td>A3</td><td><span class="part">Bounded, not prevented.</span> No display-only scheme can beat a full recording (§4.7), and the shutter cycle only helps if the sensor cannot isolate frames. The aperture bound caps what each capture holds; per-session frame watermarking makes the recording attributable.</td></tr>
+<tr><td>Patch the viewer to skip the posture check</td><td>A3</td><td><span class="yes">Defeated.</span> The check is not a branch in the client; the posture digest is in the KDF transcript. A patched viewer derives a key that does not decrypt (§5.2).</td></tr>
+<tr><td>Compromise the distributor's signing key</td><td>A3</td><td><span class="yes">Defeated for existing envelopes.</span> Verified: re-signing a downgraded policy still fails AEAD unwrap. Newly issued envelopes are of course compromised.</td></tr>
+<tr><td>Extract keys from the viewer's memory</td><td>A3/A4</td><td><span class="part">Raised.</span> ptrace denied, <code>DUMPABLE 0</code>, hardware-sealed leases with short lifetimes. A kernel-privileged adversary (A4) succeeds; not defended.</td></tr>
+<tr><td>Ambient OS assistant captures the screen</td><td>A1</td><td><span class="yes">Defeated on Windows and macOS</span> via capture exclusion; Windows' documented Recall opt-out is the same call.<sup>[4]</sup> <span class="part">Partial on Wayland, none on X11.</span></td></tr>
+<tr><td>Local agent / MCP server reads the file</td><td>A1</td><td><span class="yes">Defeated.</span> The envelope does not open for a process that cannot satisfy the posture policy, and an agent needs network egress by construction.</td></tr>
+<tr><td>Framing an innocent recipient</td><td>A3</td><td><span class="part">Bounded, not eliminated.</span> The <span class="mono">ε₁</span> bound covers statistical false accusation, and §5.5's second finding shows the threshold must scale with roster size. It does <em>not</em> cover a recipient who deliberately re-embeds another's fingerprint — an open problem (§13).</td></tr>
+<tr><td>Denial of service on the lease broker</td><td>A3</td><td><span class="part">Mitigated.</span> Lease lifetimes permit offline work; a cached lease survives broker outage for its validity window. Availability is a genuine cost of revocability.</td></tr>
+</tbody></table>
+</section>
+
+<!-- ======================================================= 10 -->
+<section class="sec">
+<h2>10 &nbsp;Ethics, law and misuse</h2>
+
+<h3>10.1 Authorship provenance is surveillance unless designed not to be</h3>
+<p>A system that records how a student writes is a system that can be turned against
+them, and the history of proctoring technology is not reassuring. Three commitments
+are therefore architectural rather than policy: the edit trail never leaves the
+student's device; only predicates over it are disclosed, never content or timings;
+and the credential must be verifiable by the student before submission, so nobody is
+surprised by what their own tool asserted about them. A student must also be able to
+decline and be offered an alternative assessment route — a mandatory provenance
+regime with no opt-out will produce exactly the false-accusation harms it was meant to
+replace. We would rather ship a weaker guarantee than a stronger surveillance
+apparatus.</p>
+
+<h3>10.2 Why CLOISTER contains no prompt injection</h3>
+<p>An obvious temptation is invisible text instructing a model to refuse. We reject
+it, for four reasons that we think are dispositive. It is an attack on a third
+party's system rather than a protection of your own document. It is unreliable, and
+unreliable security is worse than none because it produces false confidence. It
+degrades legitimate accessible reading. And it may expose the sender to liability for
+interfering with a computer system they do not own. The chaff layer's decoys are
+therefore <em>inert</em>: they contain no instructions, only innocuous prose. This is
+a deliberate line and we think any serious product in this space has to draw it.</p>
+
+<h3>10.3 Accessibility is a first-class requirement, not an exception</h3>
+<p>A blind reader using a screen reader relies on exactly the text layer that chaff
+replaces. Handled badly, this technique locks disabled readers out of documents
+everyone else can read, which is both wrong and in many jurisdictions unlawful. The
+design answer: assistive technology is a first-class attested client. Under the
+desktop and managed postures, a screen reader that satisfies the posture policy
+receives the true text through the same lease mechanism as the renderer. Under the
+format-only posture — where no such gate exists — the document must ship with an
+accessible variant available on request, and the exported artefact should say so on
+its face. Any deployment that cannot meet this should not use the chaff layer.</p>
+
+<h3>10.4 Dual use</h3>
+<p>Tools that make documents hard for machines to read and hard to attribute can
+serve people evading legitimate scrutiny as easily as people protecting privileged
+material. The mitigations are structural: the transparency log makes access history
+auditable rather than deniable; envelopes carry a plaintext-visible policy so a
+recipient always knows what they hold; and legal-hold and lawful-process exemptions
+belong in the policy vocabulary from the first version, not bolted on later. A system
+marketed to lawyers that made discovery obligations harder to meet would be a
+liability to its own users.</p>
+</section>
+
+<!-- ======================================================= 11 -->
+<section class="sec">
+<h2>11 &nbsp;Regulatory and market context</h2>
+
+<h3>11.1 The obligations that create demand</h3>
+<ul>
+<li><b>Attorney duties.</b> ABA Formal Opinion 512 (July 2024) is the reference point:
+lawyers using generative AI must protect client confidentiality, and self-learning
+tools that may expose client information require informed consent.<sup>[5]</sup>
+"We encrypted it and hoped" is not a defensible answer; an auditable access log is.</li>
+<li><b>Discoverability of AI conversations.</b> The court-ordered production of
+roughly 20 million de-identified ChatGPT conversations in the New York Times
+litigation<sup>[2]</sup> established concretely what was previously theoretical: a
+prompt is a record, and records are discoverable. Pasting privileged text into a
+consumer assistant creates a new evidentiary surface outside the firm's control. This
+is the single most persuasive fact in a legal-sector sales conversation.</li>
+<li><b>EU AI Act.</b> Prohibitions and AI-literacy duties have applied since
+2 February 2025; general-purpose model obligations since 2 August 2025; Article 50
+transparency duties arrive 2 August 2026. The Digital Omnibus deferred high-risk
+obligations — Annex III standalone systems to 2 December 2027 and Annex I embedded
+systems to 2 August 2028 — and added a new Article 5 prohibition effective
+2 December 2026.<sup>[14]</sup> The deferral is worth stating plainly rather than
+overselling: the near-term compliance driver is transparency and provenance, not
+high-risk conformity assessment.</li>
+<li><b>Trade-secret law.</b> Protection is conditioned on reasonable measures to
+maintain secrecy. As uncontrolled AI ingestion becomes foreseeable, the definition of
+"reasonable" moves, and a documented technical control becomes evidence.</li>
+</ul>
+
+<h3>11.2 The competitive gap</h3>
+<p>The AI-security category is well funded — SentinelOne's acquisition of Prompt
+Security, announced August 2025 at a reported ~$250M, is the clearest marker — and
+almost all of it sits at the same architectural position: a gateway or browser
+extension on a managed device inside a managed network. That is a real product
+solving a real problem, and it is structurally incapable of protecting a document
+after it has been sent to someone else.</p>
+
+<p>CLOISTER's position is the complement, not the competitor: protection that travels
+with the file. The two compose naturally — a gateway that recognises CLOISTER
+envelopes can enforce policy on egress, and CLOISTER can enforce policy where no
+gateway exists. The wedge is the recipient outside your perimeter, which is where
+both the professor's and the lawyer's actual problem lives, and which nobody is
+currently serving.</p>
+</section>
+
+<!-- ======================================================= 12 -->
+<section class="sec">
+<h2>12 &nbsp;Roadmap and standardisation</h2>
+
+<table>
+<thead><tr><th style="width:14%">Phase</th><th style="width:38%">Deliverable</th><th>Why this order</th></tr></thead>
+<tbody>
+<tr><td><b>0–3 mo</b></td><td>Harden the chaff exporter: font subsetting, multi-page, DOCX and HTML inputs, constrained-decoding decoy generator, accessible-variant workflow. Ship the format-only posture as a standalone tool.</td><td>Zero recipient friction; delivers value on day one; the fastest route to real users and real feedback.</td></tr>
+<tr><td><b>3–9 mo</b></td><td>Desktop viewer on macOS and Windows with hardware-sealed leases and capture exclusion; the lease broker and transparency log.</td><td>Table 4 shows these are the strong platforms. Windows and macOS first, not Linux.</td></tr>
+<tr><td><b>6–12 mo</b></td><td>Authorship provenance: the protocol and its proofs are built (§5.8); what remains is the editor integration that produces a real trail, and a pilot in a small number of courses under an explicit opt-out.</td><td>Needs institutional partners and an ethics review more than it needs engineering.</td></tr>
+<tr><td><b>9–18 mo</b></td><td><s>Ingestion oracle.</s> Removed. The power study was run (§5.7) and the result was negative; the roadmap slot goes to hardening the decoy-as-evidence path instead — a registry that lets an owner check a suspect model output against their issued decoys.</td><td>The study cost days and saved a year. Publishing the negative result is the point.</td></tr>
+<tr><td><b>12–24 mo</b></td><td>Display layer: a reference viewer implementing complementary decomposition and the aperture bound, plus a shutter prototype for the controlled-room tier. Photosensitivity review before any of it ships enabled.</td><td>The screenshot case needs only software and closes a gap the OS cannot. The shutter case needs hardware and a safety review, so it trails.</td></tr>
+<tr><td><b>12–24 mo</b></td><td>Managed-endpoint enforcement: Landlock and eBPF-LSM on Linux, minifilter and WFP on Windows, Endpoint Security Framework on macOS. Post-quantum signatures (ML-DSA) alongside Ed25519. Evaluate CP-ABE for in-ciphertext policy.</td><td>Highest engineering cost, narrowest audience, and the part most easily replaced by platform features.</td></tr>
+</tbody></table>
+
+<p><b>Standardisation.</b> The envelope should be an open specification, not a
+proprietary format — a document confinement format that only one vendor can open
+reproduces the interoperability failure that has limited IRM adoption for twenty
+years. Three concrete tracks: an IETF-style specification of the envelope and the
+posture-attestation exchange, building on COSE and the RATS attestation architecture;
+a C2PA assertion type for authorship predicates, so provenance credentials verify in
+existing tooling; and publication of the chaff and tracing constructions with the
+measurement harness, so the claims in Section 5 can be checked and attacked. A
+security product whose central claims cannot be independently reproduced should not
+be trusted, including this one.</p>
+</section>
+
+<!-- ======================================================= 13 -->
+<section class="sec">
+<h2>13 &nbsp;Limitations and open problems</h2>
+
+<h4>Acknowledged limitations</h4>
+<ul>
+<li><b>Vision models defeat the chaff layer.</b> Figure 2 shows OCR recovering 100%
+of sensitive terms. Chaff imposes cost and removes the escalation trigger; it does not
+stop a determined adversary who rasterises.</li>
+<li><b>The analog hole is open,</b> by construction and permanently.</li>
+<li><b>A4 adversaries win.</b> Kernel privilege on the reading device defeats the
+membrane. Confidential-computing enclaves on the client would help and are not
+practically available for this use case today.</li>
+<li><b>X11 cannot be secured by the operating system.</b> Layer V now gives a
+platform-independent partial answer for the single-screenshot case (&sect;5.9), but a bare
+X11 session still offers no capture exclusion, and Layer V is not a substitute for it.</li>
+<li><b>Single-frame secrecy is impossible at readable contrast,</b> and &sect;4.7 gives the
+argument rather than treating it as an engineering gap. Everything in the display layer
+except the aperture bound is cost imposition.</li>
+<li><b>The display layer asks the reader to pay.</b> A 2:1 contrast ratio, a halved duty
+cycle, 240&nbsp;Hz hardware, a shutter — and flicker, which is a seizure and migraine
+trigger. It must ship disabled with an opt-out and an alternative route, and we have run no
+usability or safety study.</li>
+<li><b>One layer was withdrawn, and one depends on a component we have not built.</b>
+The ingestion oracle was measured and abandoned (§5.7). Authorship provenance is
+implemented (§5.8) but is worthless without an attested editor producing the trail, and
+that editor does not exist yet — everything measured so far used synthesised trails.</li>
+<li><b>No usability evidence.</b> Every result here is a machine measurement. The
+dominant failure mode of document security products is that people turn them off, and
+we have not measured that at all.</li>
+<li><b>The decoy is not yet grammatical.</b> §4.4 documents the gap and the fix.</li>
+<li><b>The analog channel needs deskewing and a calibrated threshold.</b> Uncorrected
+rotation beyond about a degree destroys it, and the accusation threshold cannot be taken
+from the textbook at single-page observation counts (§5.6, finding 3).</li>
+<li><b>One page does not trace a coalition.</b> Single-leaker attribution from a
+photograph is solid; five colluders need roughly fourteen recovered pages.</li>
+</ul>
+
+<h4>Open problems we cannot currently solve</h4>
+<ul>
+<li><b>Watermark survival through model-mediated paraphrase.</b> If a recipient has a
+model rewrite the content, every embedding channel we have is destroyed while the
+semantics survive. Semantic watermarking that survives paraphrase is an active
+research area and, if solved, would be the single most valuable addition to this
+design.</li>
+<li><b>Fingerprint framing.</b> A recipient who understands the kerning channel could
+re-embed another recipient's codeword. Cryptographically binding the fingerprint to
+something the recipient cannot forge — without giving them the extraction key — is
+unsolved here.</li>
+<li><b>Statistical power of the ingestion oracle — resolved, and the answer was no.</b>
+Measured in §5.7. The detection floor sits about seven orders of magnitude above the
+relevant density, and the mechanism addressed the wrong ingestion path in any case. This
+line item is retained rather than deleted so the record shows what was claimed and what
+happened to it.</li>
+<li><b>PCR brittleness in hardware sealing.</b> TPM policies bound to measurement
+registers break on legitimate firmware updates. Policy authorisation helps; the
+operational burden is real and is why many products quietly stop using it.</li>
+<li><b>Accessibility under the format-only posture.</b> With no attestation gate, we
+cannot distinguish a screen reader from a scraper. The out-of-band accessible variant
+is a process answer, not a technical one, and we are not satisfied with it.</li>
+</ul>
+</section>
+
+<!-- ======================================================= 14 -->
+<section class="sec">
+<h2>14 &nbsp;Conclusion</h2>
+
+<p>The instinct that motivated this work — that files need protection from being
+"dumped into AI models," and that content-side pleading cannot deliver it — is
+correct, and it points at a real architectural gap. Every deployed control today
+assumes the defender owns the environment where the document is opened. The documents
+that matter most are precisely the ones sent somewhere else.</p>
+
+<p>CLOISTER's answer is to stop asking who is opening a document and start asking
+whether the runtime requesting the key has any path by which the plaintext could
+leave — and to make that question cryptographically load-bearing, so that a client
+which lies about it derives a key that does not work. Where prevention is impossible
+because the document must travel, it makes the machine-readable copy fluently wrong
+rather than obviously broken, so that automated pipelines stop instead of escalating.
+And it makes every copy unique, so the eventual leak has a name.</p>
+
+<p>The measurements support the specific claims made and no more: zero of
+twenty-four sensitive terms recovered by the extraction libraries that real pipelines
+use; a decoy that those pipelines cannot detect; a policy binding that survives
+compromise of the signing key; sixteen egress paths closed at no measurable
+performance cost; a leaked paragraph — five percent of a document — sufficient to
+name one of five colluders at least 96% of the time with no false accusations in
+3,000 trials; and a fingerprint that survives being photographed, recovered with zero
+bit errors from a simulated phone photo and naming the right recipient out of a
+thousand. Two of those
+results only exist because trying to break the design revealed that the textbook
+version was wrong.</p>
+
+<p>What remains is the analog hole, which will remain, and two layers that are still
+designs. The honest claim is not that CLOISTER makes documents unreadable to
+machines. It is that it makes the easy paths fail, the hard paths expensive, and all
+of them attributable — which is the most that can be true, and considerably more than
+anything currently available to the professor with an exam to send or the associate
+with a privileged memo to file.</p>
+</section>
+
+<!-- ======================================================= APPENDICES -->
+<section class="sec">
+<h2>Appendix A &nbsp;Envelope schema and notation</h2>
+<pre>CloisterEnvelope = {
+  hdr   : bstr .cbor Header      ; canonical CBOR, signed and AEAD-bound
+  sig   : bstr                   ; Ed25519 now; ML-DSA-65 alongside (roadmap)
+  nonce : bstr .size 12
+  body  : bstr                   ; AES-256-GCM(CK, D), AAD = SHA-384(hdr)
+}
+
+Header = {
+  suite  : tstr                  ; "CLOISTER-v1-X25519+MLKEM768-AES256GCM-SHA384"
+  policy : Policy
+  kem    : {
+    ct_x25519    : bstr .size 32
+    ct_mlkem768  : bstr .size 1088
+    nonce        : bstr .size 12
+    wrapped_ck   : bstr .size 48 ; AES-256-GCM(ss, CK), AAD = H(policy)
+  }
+}
+
+Policy = {
+  matter            : tstr
+  require           : { * tstr => bool }   ; posture predicates, all must hold
+  lease_seconds     : uint
+  not_after         : tstr                 ; RFC 3339
+  fingerprint_seed_id : tstr               ; per-recipient; keys chaff + kerning
+  transparency_log  : tstr                 ; append-only Merkle log endpoint
+}
+
+Derivation
+  ss  = HKDF-SHA384(ikm = ss_x ‖ ss_k ‖ ct_x ‖ ct_k ‖ H(policy) ‖ suite,
+                    info = "cloister/kek", L = 32)
+  CK  = AESGCM-Decrypt(ss, nonce, wrapped_ck, aad = H(policy))
+  D   = AESGCM-Decrypt(CK, nonce, body,       aad = H(hdr))
+
+Release rule
+  derive(ss) is attempted only after the local broker verifies every predicate in
+  policy.require against live runtime evidence and a valid hardware-sealed lease.
+  Posture first, key second — the ordering is the security property.</pre>
+
+<h2>Appendix B &nbsp;Parameter tables</h2>
+<table>
+<caption>Table B1 — Cryptographic parameters</caption>
+<thead><tr><th>Parameter</th><th class="n">Value</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>ML-KEM-768 encapsulation key</td><td class="n">1,184 B</td><td>FIPS 203</td></tr>
+<tr><td>ML-KEM-768 decapsulation key</td><td class="n">2,400 B</td><td>sealed to platform root of trust</td></tr>
+<tr><td>ML-KEM-768 ciphertext</td><td class="n">1,088 B</td><td>dominates envelope overhead</td></tr>
+<tr><td>X25519 public key / ciphertext</td><td class="n">32 B</td><td>classical half of the hybrid</td></tr>
+<tr><td>Envelope overhead (constant)</td><td class="n">1,660 B</td><td>measured, all document sizes</td></tr>
+<tr><td>Unseal throughput</td><td class="n">636 MB/s</td><td>measured, 10 MB document</td></tr>
+<tr><td>Seal / unseal, 100 KB</td><td class="n">5.7 / 7.5 ms</td><td>median of 20</td></tr>
+<tr><td>Device keygen (both keypairs)</td><td class="n">5.0 ms</td><td>once per device</td></tr>
+</tbody></table>
+
+<table>
+<caption>Table B2 — Fingerprint code sizing, ε₁ = 10⁻⁶ unless noted</caption>
+<thead><tr><th class="n">Recipients</th><th class="n">Collusion c</th><th class="n">Code bits m</th><th class="n">Threshold</th><th class="n">Detection</th><th class="n">False accusations</th></tr></thead>
+<tbody>
+<tr><td class="n">1,000</td><td class="n">2</td><td class="n">273</td><td class="n">5σ</td><td class="n">0.82–0.96</td><td class="n">≤0.007</td></tr>
+<tr><td class="n">1,000</td><td class="n">5</td><td class="n">1,703</td><td class="n">5σ</td><td class="n">0.99–1.00</td><td class="n">≤0.003</td></tr>
+<tr><td class="n">1,000</td><td class="n">10</td><td class="n">6,812</td><td class="n">5σ</td><td class="n">1.000</td><td class="n">0.000</td></tr>
+<tr><td class="n">50,000</td><td class="n">5</td><td class="n">1,703</td><td class="n">5σ</td><td class="n">1.000</td><td class="n">0.21 <span class="no">← too high</span></td></tr>
+<tr><td class="n">50,000</td><td class="n">5</td><td class="n">2,555</td><td class="n">6σ</td><td class="n">1.000</td><td class="n">0.000</td></tr>
+</tbody></table>
+
+<table>
+<caption>Table B3 — P(at least one colluder named) by redundancy and fragment size<br><span class="fn">n = 1,000, c = 5, m = 1,703, 5σ two-sided, majority-vote attack, 500 trials per cell</span></caption>
+<thead><tr><th class="n">Fragment leaked</th><th class="n">R = 1</th><th class="n">R = 12</th><th class="n">R = 40</th></tr></thead>
+<tbody>
+<tr><td class="n">100%</td><td class="n">0.996</td><td class="n">0.992</td><td class="n">0.998</td></tr>
+<tr><td class="n">50%</td><td class="n">0.420</td><td class="n">0.996</td><td class="n">0.992</td></tr>
+<tr><td class="n">30%</td><td class="n">0.060</td><td class="n">0.994</td><td class="n">0.990</td></tr>
+<tr><td class="n">20%</td><td class="n">0.010</td><td class="n">0.976</td><td class="n">0.996</td></tr>
+<tr><td class="n">10%</td><td class="n">0.000</td><td class="n">0.828</td><td class="n">0.992</td></tr>
+<tr><td class="n">5%</td><td class="n">0.004</td><td class="n">0.290</td><td class="n">0.964</td></tr>
+</tbody></table>
+
+<h2>Appendix C &nbsp;Reproducibility</h2>
+<p>The proof of concept is five Python modules with no unusual dependencies beyond
+<code>fonttools</code>, <code>cryptography</code>, <code>kyber-py</code> and
+<code>cbor2</code>. Every figure and every number in Section 5 and Appendix B is
+produced by one of the commands below.</p>
+<pre>poc/chaff_pdf.py      CIDFontType2 generator: divergent CIDToGIDMap / ToUnicode
+poc/decoy.py          keyed, length-congruent decoy generator
+poc/envelope.py       hybrid PQ envelope, posture gate, adversarial tests
+poc/membrane.py       seccomp-BPF + namespace confinement and egress probes
+poc/kerning.py        paired-gap kerning encoder + image-domain detector, attacks
+poc/tardos.py         symmetric Tardos code, 5 collusion attacks, redundancy
+poc/kerning.py        paired-gap kerning encoder + image-domain detector, attacks
+poc/final_measure.py  extraction vs OCR vs control comparison
+poc/sweep.py          fragment-size / redundancy sweep behind Figure 4
+poc/figures.py        figure generation
+
+$ python3 poc/chaff_pdf.py out/true_doc.txt out/decoy_doc.txt out/protected.pdf R-0001
+$ python3 poc/final_measure.py          # Figures 2 and 3
+$ python3 poc/tardos.py                 # §5.5 findings 1 and 2
+$ python3 poc/sweep.py                  # Figure 4, Table B3
+$ python3 poc/envelope.py               # §5.2, Table B1
+$ python3 poc/membrane.py               # §5.3
+    $ python3 poc/kerning.py                # Figure 5, Table 7
+
+Environment: Linux 6.18.5 x86_64 (built without CONFIG_SECURITY_LANDLOCK),
+Python 3.11.15, poppler pdftotext, pypdf 3.17.4, pdfplumber 0.11.9,
+tesseract for the OCR path. Tardos experiments seeded at 20260725.</pre>
+
+<h2>References</h2>
+<ol class="refs">
+<li>Linux kernel documentation, <i>Landlock: unprivileged access control</i> — ABI version history through ABI 10. <span class="mono">docs.kernel.org/userspace-api/landlock.html</span></li>
+<li>Coverage of the order requiring OpenAI to produce ~20 million de-identified ChatGPT conversations in the New York Times litigation, affirmed on review (reported January 2026).</li>
+<li>NIST post-quantum standards: FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA), finalised August 2024; FIPS 206 (FN-DSA) in draft as of mid-2026.</li>
+<li>Microsoft Learn, <i>Recall overview</i> and <i>Filtering apps, websites and sensitive information in Recall</i> — <code>SetWindowDisplayAffinity</code> as the application exclusion mechanism; Recall generally available 25 April 2025 on Copilot+ PCs, opt-in.</li>
+<li>ABA Standing Committee on Ethics and Professional Responsibility, <i>Formal Opinion 512: Generative Artificial Intelligence Tools</i>, 29 July 2024.</li>
+<li>Microsoft, <i>Announcing the sunset of Windows Information Protection</i> (2022) and migration guidance to Purview Information Protection.</li>
+<li>CVE-2025-53109 and CVE-2025-53110 (reference MCP filesystem server: sandbox escape and symlink bypass); CVE-2025-6514 (<code>mcp-remote</code> command injection).</li>
+<li>Documented MCP incident timelines, including prompt-injection-driven exfiltration of private repository contents and the 2026 STDIO transport design flaw.</li>
+<li>Cloud Security Alliance research note, <i>MCP Security Crisis: Systemic Design Flaws in AI Agent Infrastructure</i>, May 2026; NSA Cybersecurity Information Sheet on Model Context Protocol.</li>
+<li>G. Tardos, <i>Optimal Probabilistic Fingerprint Codes</i>, STOC 2003.</li>
+<li>B. Škorić, S. Katzenbeisser, M. Celik, <i>Symmetric Tardos fingerprinting codes for arbitrary alphabet sizes</i>; and subsequent constant-factor improvements (Blayer–Tassa, Furon et al., Laarhoven).</li>
+<li>Vanderbilt University, <i>Guidance on AI Detection and Why We're Disabling Turnitin's AI Detector</i>, 16 August 2023.</li>
+<li>W. Liang et al., <i>GPT detectors are biased against non-native English writers</i>, Patterns, 2023.</li>
+<li>EU AI Act implementation timeline as amended by the Digital Omnibus agreement: Article 5 and AI literacy from 2 February 2025; GPAI obligations from 2 August 2025; Article 50 transparency from 2 August 2026; Annex III high-risk deferred to 2 December 2027; Annex I to 2 August 2028; new Article 5 prohibition from 2 December 2026.</li>
+<li>SentinelOne, <i>SentinelOne to Acquire Prompt Security</i>, announced 5 August 2025; deal value reported at approximately $250M.</li>
+<li>Decentralised information-flow control lineage: Efstathopoulos et al. (Asbestos, SOSP 2005); Zeldovich et al. (HiStar, OSDI 2006); Krohn et al. (Flume, SOSP 2007); Roy et al. (Laminar, PLDI 2009).</li>
+<li>N. Carlini, C. Liu, Ú. Erlingsson, J. Kos, D. Song, <i>The Secret Sharer: Evaluating and Testing Unintended Memorization in Neural Networks</i>, USENIX Security 2019 — the canary-exposure method used in §5.7.</li>
+<li>IETF RFC 9180 (HPKE), RFC 9052 (COSE), RFC 9162 (Certificate Transparency v2), RFC 9334 (RATS architecture).</li>
+</ol>
+<p class="fn" style="margin-top:1em">Reference entries without URLs above are given by
+title, venue and date so they can be located directly; the accompanying artefact
+bundle includes the full source list gathered during research.</p>
+</section>
+
+</body></html>

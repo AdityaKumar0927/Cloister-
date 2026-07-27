@@ -1,0 +1,108 @@
+{
+ "verdict": "WITHDRAWN \u2014 the ingestion oracle does not work at the density that matters, and addresses the wrong ingestion path",
+ "method": {
+  "reference": "Carlini et al., The Secret Sharer, USENIX Security 2019",
+  "model": "character-level feedforward LM in numpy, gradients verified to 5.35e-08 relative error",
+  "canary": "MATTER-REF-##### inside a fixed carrier sentence",
+  "candidate_space": 100000,
+  "rank": "computed exactly via a digit-tree enumeration (11,111 forward rows, not 1.6M)",
+  "null": "analytic \u2014 P(exposure >= x) = 2^-x by exchangeability, so p-values need no simulation"
+ },
+ "finding_1_null_distribution": {
+  "observation": "a canary that was never inserted scored 3.8 bits of exposure",
+  "implication": "an exposure figure alone is not evidence; p<0.001 requires ~10 bits"
+ },
+ "finding_2_ceiling_effect": {
+  "observation": "varying insertion count 1..64 at fixed corpus gave perfect exposure at every multiplicity",
+  "train_perplexity": [
+   1.071,
+   1.07,
+   1.074,
+   1.069,
+   1.077,
+   1.076,
+   1.072,
+   1.075
+  ],
+  "implication": "the model had memorised its whole corpus; the sweep was degenerate, not a result"
+ },
+ "finding_3_detection_floor": {
+  "design": "fixed compute (1.5M gradient examples), one occurrence, growing corpus",
+  "detected_at_or_above_per_Mchar": 1.666,
+  "not_detected_at_or_below_per_Mchar": 0.833,
+  "floor_per_million_chars": "~1 occurrence per million characters",
+  "points": [
+   {
+    "per_Mchar": 6.661,
+    "exposure_bits": 16.61,
+    "p": 9.999999999999996e-06,
+    "detected": true
+   },
+   {
+    "per_Mchar": 3.332,
+    "exposure_bits": 16.61,
+    "p": 9.999999999999996e-06,
+    "detected": true
+   },
+   {
+    "per_Mchar": 1.666,
+    "exposure_bits": 16.61,
+    "p": 9.999999999999996e-06,
+    "detected": true
+   },
+   {
+    "per_Mchar": 0.833,
+    "exposure_bits": 6.1,
+    "p": 0.01461999999999999,
+    "detected": false
+   },
+   {
+    "per_Mchar": 0.417,
+    "exposure_bits": 9.38,
+    "p": 0.0015,
+    "detected": false
+   },
+   {
+    "per_Mchar": 0.208,
+    "exposure_bits": 5.77,
+    "p": 0.01837,
+    "detected": false
+   }
+  ]
+ },
+ "finding_4_capacity": {
+  "points": [
+   {
+    "params": 119073,
+    "exposure_bits": 7.6,
+    "detected": false
+   },
+   {
+    "params": 236321,
+    "exposure_bits": 8.94,
+    "detected": false
+   },
+   {
+    "params": 470817,
+    "exposure_bits": 10.8,
+    "detected": true
+   }
+  ],
+  "implication": "4x the parameters buys ~3 bits; closing 7 orders of magnitude this way is not a plan"
+ },
+ "the_gap": {
+  "frontier_density_per_Mchar": 1e-07,
+  "assumption": "a 5 KB document scraped once into a 10 TB (1e13 char) corpus",
+  "orders_of_magnitude_below_the_floor": 7
+ },
+ "finding_5_wrong_threat": {
+  "point": "the oracle detects training-time ingestion; the threat this project addresses is inference-time (a document uploaded to a chatbot), which leaves no trace in weights at all",
+  "note": "this required no experiment and should have been caught in design review"
+ },
+ "replacement": "none needed \u2014 if a model's OUTPUT reproduces a per-recipient decoy, that is direct evidence of ingestion, identifies the copy, works at inference time, and needs no model access. Layer D already provides it.",
+ "biases_stated": [
+  "small repetitive corpus and near-total memorisation (perplexity 1.08-1.18) favour the oracle",
+  "a fixed-context MLP memorises long canaries only through overlapping k-grams, which works against the oracle",
+  "params-per-example (~0.08-0.31) is broadly comparable to frontier params-per-token, but absolute scales differ by seven orders of magnitude and no extrapolation is claimed"
+ ]
+}

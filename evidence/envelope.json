@@ -1,0 +1,45 @@
+{
+  "suite": "CLOISTER-v1-X25519+MLKEM768-AES256GCM-SHA384",
+  "sizes": {
+    "1KB": {
+      "plaintext": 1024,
+      "envelope": 2682,
+      "overhead_bytes": 1658
+    },
+    "100KB": {
+      "plaintext": 102400,
+      "envelope": 104060,
+      "overhead_bytes": 1660
+    },
+    "10MB": {
+      "plaintext": 10485760,
+      "envelope": 10487420,
+      "overhead_bytes": 1660
+    }
+  },
+  "timings_ms": {
+    "device_keygen": 5.02,
+    "seal_1KB": 5.69,
+    "unseal_1KB": 7.63,
+    "seal_100KB": 5.65,
+    "unseal_100KB": 7.52,
+    "seal_10MB": 136.14,
+    "unseal_10MB": 15.72,
+    "throughput_MBps_unseal": 636.1
+  },
+  "posture": {
+    "egress_blocked": "denied: egress_blocked: required True, observed False",
+    "ptrace_blocked": "denied: ptrace_blocked: required True, observed False",
+    "capture_excluded": "denied: capture_excluded: required True, observed False",
+    "clipboard_gated": "denied: clipboard_gated: required True, observed False",
+    "attested_renderer": "denied: attested_renderer: required True, observed False"
+  },
+  "policy_tamper": "rejected at InvalidSignature",
+  "pq_params": {
+    "mlkem768_ek": 1184,
+    "mlkem768_dk": 2400,
+    "mlkem768_ct": 1088,
+    "x25519_pk_ct": 32,
+    "shared_secret": 32
+  }
+}

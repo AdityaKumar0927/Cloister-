@@ -1,0 +1,686 @@
+{
+ "passed": 52,
+ "total": 52,
+ "seconds": 406.2,
+ "failed": [],
+ "toothless": [],
+ "leaky": [],
+ "results": [
+  {
+   "name": "zk-subgroup-generator",
+   "kind": "regression",
+   "says": "_hash_to_group squared into the quadratic-residue subgroup instead of exponentiating by the cofactor. In a 2048-bit prime with a 256-bit prime-order subgroup those are different groups, so every inverse computed as x^(Q-1) was silently wrong and no proof verified.",
+   "found_by": "every predicate proof failing at once, with no error raised",
+   "detail": {
+    "H mod Q order": "1 (correct)",
+    "cofactor bits": 1792
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: squaring did not land in the order-Q subgroup",
+   "seconds": 0.05
+  },
+  {
+   "name": "zk-proofs-verify",
+   "kind": "claim",
+   "says": "every predicate proof verifies on honest inputs",
+   "detail": {
+    "range [0,2^8)": "verifies",
+    "bound v<=400": "verifies",
+    "atleast v>=1800": "verifies"
+   },
+   "status": "pass",
+   "seconds": 1.89
+  },
+  {
+   "name": "zk-forgeries-rejected",
+   "kind": "claim",
+   "says": "7 of 7 forgery attempts are rejected, including context substitution",
+   "detail": {
+    "forgeries rejected": "7/7"
+   },
+   "status": "pass",
+   "seconds": 0.14
+  },
+  {
+   "name": "zk-verify-exponent-size",
+   "kind": "regression",
+   "says": "verification inverted group elements with Fermat's little theorem, pow(x, P-2, P) -- a 2048-bit exponent -- which made verifying slower than proving. Inside a prime-order subgroup the inverse is x^(Q-e), a 256-bit exponent.",
+   "found_by": "timing the verifier and the prover side by side",
+   "detail": {
+    "prove": "14.71 ms/bit",
+    "verify": "18.78 ms/bit",
+    "ratio": 1.28
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: Fermat verify 76.64ms vs prove 15.28ms",
+   "seconds": 4.33
+  },
+  {
+   "name": "zk-proof-size",
+   "kind": "claim",
+   "says": "a full authorship credential is a few tens of KB, not MB",
+   "detail": {
+    "atleast proof (24 bit)": "20.4 KB",
+    "serialisation": "round-trips"
+   },
+   "status": "pass",
+   "seconds": 0.91
+  },
+  {
+   "name": "tardos-one-sided-accusation",
+   "kind": "regression",
+   "says": "the accusation test compared the raw score S against a positive threshold. A collusion that emits the minority bit everywhere produces NEGATIVELY correlated output, so every colluder's score falls below zero and a one-sided test names none of them -- not degraded detection, zero detection.",
+   "found_by": "running the inverted minority-vote attack instead of only averaging attacks",
+   "detail": {
+    "colluder scores negative": "200/200",
+    "two-sided named": "3.525/5",
+    "one-sided named": "0.000/5",
+    "false accusations per trial": 0.0
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: one-sided test named only 0.00 of 5",
+   "seconds": 0.12
+  },
+  {
+   "name": "tardos-collusion-table",
+   "kind": "claim",
+   "says": "about 3.4 of 5 colluders named with zero false accusations, across six collusion strategies (the whitepaper's collusion figures)",
+   "detail": {
+    "majority": "3.52/5 named, 0.0000 false per trial",
+    "minority_marked": "2.70/5 named, 0.0000 false per trial",
+    "minority_inverted": "3.52/5 named, 0.0000 false per trial",
+    "all_ones": "3.05/5 named, 0.0000 false per trial",
+    "coin_flip": "3.35/5 named, 0.0000 false per trial",
+    "interleave": "3.40/5 named, 0.0000 false per trial"
+   },
+   "status": "pass",
+   "seconds": 0.14
+  },
+  {
+   "name": "tardos-fixed-sigma-threshold",
+   "kind": "regression",
+   "says": "the threshold was a fixed multiple of sigma. At the observation counts a single recovered page provides, the score's tail is not Gaussian and depends on which small p_i that particular code drew, so a nominal 5 sigma produced real false accusations across a large roster.",
+   "found_by": "measuring the innocent-score maximum instead of assuming normality",
+   "detail": {
+    "calibrated threshold": "6.82 sqrt(nobs)",
+    "detection": "1.000",
+    "false accusations per trial": 0.0
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: 5 sigma gave 0.218 false accusations per trial",
+   "seconds": 0.89
+  },
+  {
+   "name": "tardos-code-screening",
+   "kind": "claim",
+   "says": "codes with identical parameters differ enormously in power, so the realisation is chosen rather than accepted as drawn",
+   "detail": {
+    "candidate detection rates": [
+     0.9671,
+     0.9971,
+     1.0,
+     1.0
+    ],
+    "spread": 0.033,
+    "chosen threshold": 6.232
+   },
+   "status": "pass",
+   "seconds": 0.9
+  },
+  {
+   "name": "tardos-code-length",
+   "kind": "claim",
+   "says": "code length follows (pi^2/2) c^2 ln(1/eps1) with the optimal constant 4.93",
+   "detail": {
+    "c=2": 273,
+    "c=5": 1703,
+    "c=4 / c=2": 3.993
+   },
+   "status": "pass",
+   "seconds": 0.0
+  },
+  {
+   "name": "tardos-bit-error-tolerance",
+   "kind": "claim",
+   "says": "detection survives the bit error rate a photographed page actually produces",
+   "detail": {
+    "ber 0%": "detection 1.000, false 0.0",
+    "ber 5%": "detection 0.983, false 0.0",
+    "ber 10%": "detection 0.833, false 0.0"
+   },
+   "status": "pass",
+   "seconds": 0.44
+  },
+  {
+   "name": "envelope-round-trips",
+   "kind": "claim",
+   "says": "a sealed document opens to the original bytes inside a satisfying runtime",
+   "detail": {
+    "plaintext": "1392 B",
+    "envelope": "3026 B",
+    "overhead": "1634 B"
+   },
+   "status": "pass",
+   "seconds": 0.02
+  },
+  {
+   "name": "envelope-overhead-is-constant",
+   "kind": "claim",
+   "says": "overhead is a fixed ~1.6 KB regardless of document size, so the scheme is usable on a memo and on a deposition transcript alike",
+   "detail": {
+    "overhead at 1 KB": "1620 B",
+    "at 100 KB": "1622 B",
+    "at 4 MB": "1622 B",
+    "spread": "2 B"
+   },
+   "status": "pass",
+   "seconds": 0.03
+  },
+  {
+   "name": "envelope-throughput",
+   "kind": "claim",
+   "says": "sealing and opening run at hundreds of MB/s, so the envelope is not what a reader waits for",
+   "detail": {
+    "seal": "361 MB/s",
+    "open": "497 MB/s"
+   },
+   "status": "pass",
+   "seconds": 0.04
+  },
+  {
+   "name": "envelope-policy-digest-is-load-bearing",
+   "kind": "regression",
+   "says": "a policy carried alongside the ciphertext and merely signed can be relaxed by anyone who also holds the signing key -- an insider, or the vendor. Binding the policy digest into the KDF transcript means editing the policy yields a key that no longer reproduces.",
+   "found_by": "asking what a signed-policy scheme does against an adversary who holds the signing key, which is the adversary that matters here",
+   "detail": {
+    "forged policy": "all predicates relaxed",
+    "signature": "valid (adversary holds the signing key)",
+    "result": "InvalidTag -- key does not reproduce"
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: the advisory scheme opened a relaxed, re-signed policy",
+   "seconds": 0.03
+  },
+  {
+   "name": "envelope-posture-gate-precedes-derivation",
+   "kind": "regression",
+   "says": "a sandbox applied after decryption protects nothing, because the plaintext already exists in a process that could have leaked it. The posture gate therefore has to run before any key material is derived, not merely before the plaintext is returned.",
+   "found_by": "instrumenting the KEM to count decapsulations during a denied open",
+   "detail": {
+    "denied with": "egress_blocked: policy requires True, runtime reports False",
+    "KEM decapsulations": 0,
+    "KDF derivations": 0
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: 1 decapsulations happened before the posture check",
+   "seconds": 0.03
+  },
+  {
+   "name": "envelope-kem-ciphertexts-are-bound",
+   "kind": "claim",
+   "says": "both KEM ciphertexts are in the transcript, so mauling either one yields a key that does not reproduce rather than a related key",
+   "detail": {
+    "maul ct_x25519": "InvalidTag",
+    "maul ct_mlkem768": "InvalidTag"
+   },
+   "status": "pass",
+   "seconds": 0.02
+  },
+  {
+   "name": "envelope-lease-expires",
+   "kind": "claim",
+   "says": "the envelope never yields a permanently usable key: revocation means stop issuing leases, which is a thing that actually works",
+   "detail": {
+    "valid lease": "opens",
+    "expired": "lease expired 100s ago; request another",
+    "wrong matter": "refused",
+    "log entries": 1
+   },
+   "status": "pass",
+   "seconds": 0.02
+  },
+  {
+   "name": "envelope-transparency-log-detects-edits",
+   "kind": "claim",
+   "says": "the access log is hash-chained, so 'nobody opened it' becomes a statement that survives challenge",
+   "detail": {
+    "entries": 4,
+    "head": "0ed41c62efd8242b...",
+    "after editing entry 1": "chain fails to verify"
+   },
+   "status": "pass",
+   "seconds": 0.0
+  },
+  {
+   "name": "envelope-policy-digest-is-canonical",
+   "kind": "claim",
+   "says": "the policy digest is over canonical CBOR, so re-ordering the same policy's keys does not change the key it derives",
+   "detail": {
+    "reordered keys": "same digest",
+    "changed lease": "different digest"
+   },
+   "status": "pass",
+   "seconds": 0.0
+  },
+  {
+   "name": "membrane-refuses-unsupported-platforms",
+   "kind": "claim",
+   "says": "the module refuses to install rather than silently applying nothing, because the syscall numbers it uses are x86_64-specific",
+   "detail": {
+    "platform supported": true,
+    "denied syscalls": 16,
+    "filter instructions": 22,
+    "landlock abi": "unavailable"
+   },
+   "status": "pass",
+   "seconds": 0.0
+  },
+  {
+   "name": "membrane-blocks-egress-across-execve",
+   "kind": "claim",
+   "says": "every socket family is refused inside the membrane, and the filter survives execve so it covers the renderer and anything it launches",
+   "detail": {
+    "seccomp mode after exec": 2,
+    "socket families refused": "inet, unix, netlink, inet6",
+    "errno": 1
+   },
+   "status": "pass",
+   "seconds": 0.09
+  },
+  {
+   "name": "membrane-is-one-way",
+   "kind": "claim",
+   "says": "the membrane cannot be left: seccomp filters and no_new_privs cannot be removed once set, which is what makes 'enter first, then ask for a key' meaningful",
+   "detail": {
+    "stacking a permissive filter": "does not widen the restriction",
+    "socket still refused": 1,
+    "no_new_privs": 1
+   },
+   "status": "pass",
+   "seconds": 0.08
+  },
+  {
+   "name": "membrane-reports-unverifiable-predicates-as-false",
+   "kind": "claim",
+   "says": "capture exclusion, clipboard gating and renderer attestation are not implemented here, so they are reported False and a policy requiring them fails closed rather than being optimistically assumed",
+   "detail": {
+    "egress_blocked": false,
+    "ptrace_blocked": false,
+    "capture_excluded": false,
+    "clipboard_gated": false,
+    "attested_renderer": false
+   },
+   "status": "pass",
+   "seconds": 0.0
+  },
+  {
+   "name": "membrane-dumpable-across-execve",
+   "kind": "regression",
+   "says": "PR_SET_DUMPABLE does not survive execve -- the kernel resets it to 1 -- while the seccomp filter does. Reading /proc/<pid>/mem is an ordinary file read, not a syscall a filter can distinguish, so dumpable=0 is the only thing stopping a same-uid process inspecting the reader's memory. Losing it across exec silently reopened that path while the posture report still said the process was protected.",
+   "found_by": "reading the dumpable flag in the child AFTER exec instead of before",
+   "detail": {
+    "dumpable inherited from exec": 1,
+    "after observe() re-asserts": 0,
+    "ptrace_blocked": true
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: without re-asserting, the process after exec has dumpable=1 and reports ptrace_blocked=False",
+   "seconds": 0.19
+  },
+  {
+   "name": "membrane-run-confined-propagates-exit-status",
+   "kind": "claim",
+   "says": "run_confined is usable as a launcher: it reports the child's exit status rather than swallowing it",
+   "detail": {
+    "clean exit": 0,
+    "failing exit": 7
+   },
+   "status": "pass",
+   "seconds": 0.04
+  },
+  {
+   "name": "authorship-separates-honest-from-pasted",
+   "kind": "claim",
+   "says": "honest composition and a fluent fast writer both earn a full credential; bulk and chunked pasting both fail; retyped model output PASSES, and the suite records that limit rather than hiding it",
+   "detail": {
+    "honest": "credential complete",
+    "honest_fast": "credential complete",
+    "paste_bulk": "incomplete",
+    "paste_chunked": "incomplete",
+    "retyped": "credential complete"
+   },
+   "status": "pass",
+   "seconds": 6.48
+  },
+  {
+   "name": "authorship-credential-size",
+   "kind": "claim",
+   "says": "a credential is tens of KB, small enough to attach to a submission",
+   "detail": {
+    "honest": "54 KB",
+    "honest_fast": "54 KB",
+    "paste_bulk": "4 KB",
+    "paste_chunked": "4 KB",
+    "retyped": "54 KB"
+   },
+   "status": "pass",
+   "seconds": 6.33
+  },
+  {
+   "name": "authorship-event-count-not-in-cleartext",
+   "kind": "regression",
+   "says": "the attestation body repeated event_count in the clear alongside its commitment. How many edits a person made is exactly the incidental detail this layer exists to keep out of institutional hands, and it was being published for free.",
+   "found_by": "reading the attestation body as an instructor would receive it, rather than only checking that the proofs verified",
+   "detail": {
+    "statistics committed": 5,
+    "statistics in cleartext": 0,
+    "body keys": [
+     "commitments",
+     "editor",
+     "stat_widths",
+     "submission_sha256",
+     "trail_root"
+    ]
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: attestation body leaks ['event_count', 'event_count=768']",
+   "seconds": 0.06
+  },
+  {
+   "name": "authorship-no-wall-clock-floor-by-default",
+   "kind": "regression",
+   "says": "the default policy required a minimum elapsed time. It failed an honest fluent writer who produced the same work in 3 minutes that a deliberate writer took 65 minutes over -- turning writing speed into suspicion. It is now opt-in, with the caveat attached.",
+   "found_by": "simulating a fast honest writer, a case the original scenario set did not contain",
+   "detail": {
+    "deliberate writer": "65 min, credential complete",
+    "fluent writer": "3 min, credential complete"
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: fluent writer failed a default policy carrying a 30-minute floor (3 min elapsed)",
+   "seconds": 9.45
+  },
+  {
+   "name": "authorship-trail-is-tamper-evident",
+   "kind": "claim",
+   "says": "the editor signs the trail's Merkle root, so editing, inserting or dropping an event makes the trail stop matching its own attestation",
+   "detail": {
+    "events": 185,
+    "signed root": "2a4545e00a6267f3...",
+    "edit an event": "root no longer matches the attestation",
+    "drop an event": "root no longer matches the attestation",
+    "insert an event": "root no longer matches the attestation"
+   },
+   "status": "pass",
+   "seconds": 0.03
+  },
+  {
+   "name": "chaff-extractors-recover-nothing",
+   "kind": "claim",
+   "says": "0 of 8 sensitive terms are recovered by pdftotext, pypdf or pdfplumber",
+   "detail": {
+    "pdftotext": "1063 chars, 0/8 terms",
+    "pypdf": "1074 chars, 0/8 terms",
+    "pdfplumber": "1060 chars, 0/8 terms"
+   },
+   "status": "pass",
+   "seconds": 0.4
+  },
+  {
+   "name": "chaff-decoy-is-fluent",
+   "kind": "claim",
+   "says": "what an extractor gets back is English prose, not gibberish: it compresses like English, so an ingestion filter has nothing to flag",
+   "detail": {
+    "chaff": 0.536,
+    "English cover": 0.458,
+    "random letters": 0.628
+   },
+   "status": "pass",
+   "seconds": 0.07
+  },
+  {
+   "name": "chaff-tounicode-is-many-to-one",
+   "kind": "claim",
+   "says": "a single drawn glyph reports a whole string of characters, so few glyphs on the page yield fluent prose in the text layer",
+   "detail": {
+    "glyphs drawn": 452,
+    "characters reported": 1060,
+    "expansion": "2.3x"
+   },
+   "status": "pass",
+   "seconds": 0.11
+  },
+  {
+   "name": "render-pdf-object-numbering",
+   "kind": "regression",
+   "says": "PDF.add() returned len(self.objs) after appending, so every indirect reference was off by one, and the trailer hardcoded /Root 1 0 R. The file looked plausible and pypdf refused it.",
+   "found_by": "opening the output with a second PDF library instead of only the one used to write it",
+   "detail": {
+    "pages": 1,
+    "root": "catalog",
+    "fonts": "Type0 / CIDFontType2, all resolvable"
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: ",
+   "seconds": 0.09
+  },
+  {
+   "name": "chaff-layout-is-recipient-independent",
+   "kind": "claim",
+   "says": "line breaking uses unperturbed advances, so every recipient's copy has the same layout map and one detector serves all of them",
+   "detail": {
+    "lines": 10,
+    "identical spans": true,
+    "marked positions": 45
+   },
+   "status": "pass",
+   "seconds": 0.21
+  },
+  {
+   "name": "chaff-cid-budget",
+   "kind": "claim",
+   "says": "font banks roll over below the 65535 CID limit rather than overflowing",
+   "detail": {
+    "budget": 55000,
+    "cids used by this document": 452,
+    "headroom": 10535
+   },
+   "status": "pass",
+   "seconds": 0.01
+  },
+  {
+   "name": "chaff-displacement-is-subvisual",
+   "kind": "claim",
+   "says": "the kerning displacement is a fraction of a point, well under a printed pixel at 300 dpi",
+   "detail": {
+    "delta": "0.2625 pt",
+    "at 300 dpi": "1.09 px",
+    "positions marked": 45
+   },
+   "status": "pass",
+   "seconds": 0.08
+  },
+  {
+   "name": "kerning-recovers-bits-from-a-photograph",
+   "kind": "claim",
+   "says": "the fingerprint survives rotation, rescaling and sensor noise, and every position that is read is read correctly",
+   "detail": {
+    "positions read": "46/64",
+    "bit errors": 0,
+    "median margin": "1.132 px",
+    "lines used": 9
+   },
+   "status": "pass",
+   "seconds": 13.58
+  },
+  {
+   "name": "kerning-erasures-not-guesses",
+   "kind": "claim",
+   "says": "positions the detector cannot measure become erasures, never guesses, because the accusation test tolerates erasures far better than flips",
+   "detail": {
+    "positions read from a blank page": 0,
+    "lines reported unreadable": 9
+   },
+   "status": "pass",
+   "seconds": 5.82
+  },
+  {
+   "name": "kerning-ink-bbox-under-noise",
+   "kind": "regression",
+   "says": "the ink bounding box projected raw intensity, so on a noisy scan every row of blank paper accumulated enough energy to look like text. The box became the whole page, normalise() then rescaled by the wrong factor, and the detector scored at chance with no error raised.",
+   "found_by": "feeding the detector a noisy page instead of a clean render",
+   "detail": {
+    "ink box on a noisy page": "15.3% of the page",
+    "clean box": "15.3%",
+    "edges agree with clean render": "within 6% of page size"
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: unthresholded box covers 100.0% of the page",
+   "seconds": 9.86
+  },
+  {
+   "name": "kerning-rectified-noise-denoiser",
+   "kind": "regression",
+   "says": "denoise() subtracted a percentile and clipped at zero, which leaves half-wave rectified noise spread over the whole measurement window. The window is mostly whitespace, so that rectified floor dragged the centroid several pixels -- more than the 1.09 px signal.",
+   "found_by": "measuring centroid drift on a noisy page against the signal amplitude, rather than assuming the noise averaged out",
+   "detail": {
+    "worst centroid drift": "0.71 px (paper 180)",
+    "signal amplitude": "1.09 px",
+    "drift / signal": 0.645
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: percentile denoiser drifts 1.05 px against 1.09 px of signal (worst at paper 180)",
+   "seconds": 21.03
+  },
+  {
+   "name": "kerning-paper-pedestal",
+   "kind": "regression",
+   "says": "the detector had no background model and both its thresholds were a fraction of the PEAK, which assumes paper sits at zero. It does in a rasterised PDF and it does not in a photograph: grey, unevenly lit paper is a pedestal the cut lands below, so paper counts as ink, the text box stretches toward the dark edge, normalise() fits that stretched box, and every word window afterwards is displaced by more than the signal. Fixed in two places: an illumination surface is subtracted first (flatten), and what remains is thresholded relative to the paper level with a noise-floor term (paper_cut).",
+   "found_by": "this suite. Every earlier degradation ladder used white paper, where the uint8 clip removes the negative half of the noise and a cut measured from zero happens to work.",
+   "detail": {
+    "paper 255": "ink box 15.3% (clean 15.3%)",
+    "paper 224": "ink box 15.3% (clean 15.3%)",
+    "paper 200": "ink box 15.3% (clean 15.3%)",
+    "paper 180": "ink box 15.3% (clean 15.3%)"
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: peak-relative threshold: paper 200 gives a 47.9% ink box against 15.3% clean",
+   "seconds": 19.13
+  },
+  {
+   "name": "kerning-recovers-from-a-dim-photograph",
+   "kind": "claim",
+   "says": "bits are still recovered when the page is photographed grey and unevenly lit, not only when it is scanned white",
+   "detail": {
+    "positions read": "46/64",
+    "bit errors": 0,
+    "bit error rate": "0.0%",
+    "median margin": "1.056 px"
+   },
+   "status": "pass",
+   "seconds": 13.26
+  },
+  {
+   "name": "kerning-page-identification",
+   "kind": "claim",
+   "says": "a single leaked page out of many is matched to its position in the master by row profile, so partial evidence is usable",
+   "detail": {
+    "identified page": 0,
+    "correlation": 0.742,
+    "reference pages": 1
+   },
+   "status": "pass",
+   "seconds": 8.2
+  },
+  {
+   "name": "kerning-deskew-is-cheap-and-accurate",
+   "kind": "claim",
+   "says": "deskew recovers the rotation to a fraction of a degree without a full-resolution sweep",
+   "detail": {
+    "applied -1.4 deg": "found +1.25, error 0.15",
+    "applied +0.9 deg": "found -1.00, error 0.10"
+   },
+   "status": "pass",
+   "seconds": 5.96
+  },
+  {
+   "name": "kerning-stale-page-renders",
+   "kind": "regression",
+   "says": "render_pdf collected every PNG matching its prefix without clearing the directory first, and the trace command reuses a fixed working directory. A one-page document traced after an eight-page one therefore saw eight reference pages, seven of them belonging to a different document, and compared the evidence against whichever one matched best.",
+   "found_by": "smoke-testing the CLI twice in a row and noticing that a one-page brief reported an eight-page reference",
+   "detail": {
+    "stale files planted": 4,
+    "pages returned": 1
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: without clearing the prefix, render_pdf returns 4 pages for a one-page document",
+   "seconds": 1.59
+  },
+  {
+   "name": "trace-redundancy-regime",
+   "kind": "claim",
+   "says": "a page-filling document carries each code position about three times, so one photographed page observes the whole codeword",
+   "detail": {
+    "code length": 69,
+    "gaps on page 0": 205,
+    "redundancy": "2.97x",
+    "pages": 1
+   },
+   "status": "pass",
+   "seconds": 1.49
+  },
+  {
+   "name": "trace-end-to-end",
+   "kind": "claim",
+   "says": "6 of 6 photographed single pages are traced to the correct recipient out of a roster of 40, with zero false accusations",
+   "detail": {
+    "trace 0 (user 25)": "named  69/69 positions  ber 0.0%  1.8x nearest innocent",
+    "trace 1 (user 38)": "named  69/69 positions  ber 0.0%  2.7x nearest innocent",
+    "trace 2 (user 38)": "named  69/69 positions  ber 0.0%  2.7x nearest innocent",
+    "trace 3 (user 32)": "named  69/69 positions  ber 0.0%  2.0x nearest innocent",
+    "trace 4 (user  7)": "named  69/69 positions  ber 0.0%  2.0x nearest innocent",
+    "trace 5 (user 26)": "named  69/69 positions  ber 1.4%  3.3x nearest innocent",
+    "calibrated threshold": "3.02 sqrt(nobs) at 69 positions",
+    "worst margin over nearest innocent": "1.8x"
+   },
+   "status": "pass",
+   "seconds": 130.92
+  },
+  {
+   "name": "trace-innocent-recipients-are-not-accused",
+   "kind": "claim",
+   "says": "no innocent member of the roster is ever named, which is the property that makes a trace usable as evidence rather than as suspicion",
+   "detail": {
+    "holder 3": "named, 0 innocents accused, score 51.3 vs next 18.7",
+    "holder 17": "named, 0 innocents accused, score 43.7 vs next 25.1"
+   },
+   "status": "pass",
+   "seconds": 53.54
+  },
+  {
+   "name": "trace-fails-silent-not-wrong",
+   "kind": "claim",
+   "says": "past the detector's limit -- a dark, heavily downscaled, very noisy capture -- recovery degrades to chance, and at chance it names NOBODY rather than naming an innocent",
+   "detail": {
+    "dark + downscaled 70%": "ber 17%, holder still named, 0 innocents accused",
+    "dark + very noisy": "ber 48%, nobody named, 0 innocents accused"
+   },
+   "status": "pass",
+   "seconds": 50.06
+  },
+  {
+   "name": "trace-redundancy-is-combined-not-overwritten",
+   "kind": "regression",
+   "says": "recover() assigned bits[bidx] on every repeat, so the last measurement of a code position silently overwrote all the earlier ones and the renderer's redundancy bought nothing. Repeats are now combined as signed evidence, which weights each measurement by its own margin.",
+   "found_by": "this suite, when sizing the document so that one page carries the whole codeword: the redundancy was visible in the layout map and absent from the recovered bits",
+   "detail": {
+    "redundancy": "2.97x",
+    "single-gap margin": "1.006 px",
+    "combined margin": "3.097 px",
+    "bit error rate": "1.4%"
+   },
+   "status": "pass",
+   "mutation": "reproduced the original failure: overwriting repeats gives a 13.0% bit error rate on the same photograph",
+   "seconds": 37.82
+  }
+ ]
+}

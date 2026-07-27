@@ -1,0 +1,335 @@
+[
+  {
+    "users_n": 1000,
+    "collusion_c": 2,
+    "code_bits_m": 273,
+    "fragment_survival": 1.0,
+    "redundancy_R": 1,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 1.103,
+        "P(at_least_one_named)": 0.82,
+        "avg_false_accusations": 0.003333
+      },
+      "minority": {
+        "avg_colluders_named": 1.487,
+        "P(at_least_one_named)": 0.9633,
+        "avg_false_accusations": 0.003333
+      },
+      "coin_flip": {
+        "avg_colluders_named": 1.387,
+        "P(at_least_one_named)": 0.8967,
+        "avg_false_accusations": 0.006667
+      },
+      "all_ones": {
+        "avg_colluders_named": 1.51,
+        "P(at_least_one_named)": 0.95,
+        "avg_false_accusations": 0.0
+      },
+      "interleave": {
+        "avg_colluders_named": 1.293,
+        "P(at_least_one_named)": 0.86,
+        "avg_false_accusations": 0.006667
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 1.0,
+    "redundancy_R": 1,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 3.487,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "minority": {
+        "avg_colluders_named": 3.517,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "coin_flip": {
+        "avg_colluders_named": 3.247,
+        "P(at_least_one_named)": 0.9933,
+        "avg_false_accusations": 0.003333
+      },
+      "all_ones": {
+        "avg_colluders_named": 3.17,
+        "P(at_least_one_named)": 0.9967,
+        "avg_false_accusations": 0.0
+      },
+      "interleave": {
+        "avg_colluders_named": 3.367,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 10,
+    "code_bits_m": 6812,
+    "fragment_survival": 1.0,
+    "redundancy_R": 1,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 200,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 6.455,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "minority": {
+        "avg_colluders_named": 6.055,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "coin_flip": {
+        "avg_colluders_named": 6.2,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "all_ones": {
+        "avg_colluders_named": 5.995,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "interleave": {
+        "avg_colluders_named": 6.425,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 1.0,
+    "redundancy_R": 1,
+    "two_sided": false,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 3.367,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "minority": {
+        "avg_colluders_named": 0.0,
+        "P(at_least_one_named)": 0.0,
+        "avg_false_accusations": 0.0
+      },
+      "coin_flip": {
+        "avg_colluders_named": 3.237,
+        "P(at_least_one_named)": 0.9967,
+        "avg_false_accusations": 0.0
+      },
+      "all_ones": {
+        "avg_colluders_named": 3.567,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "interleave": {
+        "avg_colluders_named": 3.367,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 0.3,
+    "redundancy_R": 1,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 0.073,
+        "P(at_least_one_named)": 0.07,
+        "avg_false_accusations": 0.02
+      },
+      "minority": {
+        "avg_colluders_named": 0.067,
+        "P(at_least_one_named)": 0.0667,
+        "avg_false_accusations": 0.03
+      },
+      "coin_flip": {
+        "avg_colluders_named": 0.093,
+        "P(at_least_one_named)": 0.09,
+        "avg_false_accusations": 0.013333
+      },
+      "all_ones": {
+        "avg_colluders_named": 0.087,
+        "P(at_least_one_named)": 0.0867,
+        "avg_false_accusations": 0.013333
+      },
+      "interleave": {
+        "avg_colluders_named": 0.083,
+        "P(at_least_one_named)": 0.0833,
+        "avg_false_accusations": 0.013333
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 0.3,
+    "redundancy_R": 12,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 3.157,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "minority": {
+        "avg_colluders_named": 3.223,
+        "P(at_least_one_named)": 0.9967,
+        "avg_false_accusations": 0.0
+      },
+      "coin_flip": {
+        "avg_colluders_named": 3.167,
+        "P(at_least_one_named)": 0.9967,
+        "avg_false_accusations": 0.0
+      },
+      "all_ones": {
+        "avg_colluders_named": 3.28,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.0
+      },
+      "interleave": {
+        "avg_colluders_named": 3.12,
+        "P(at_least_one_named)": 0.9967,
+        "avg_false_accusations": 0.0
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 0.1,
+    "redundancy_R": 12,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 1.657,
+        "P(at_least_one_named)": 0.8767,
+        "avg_false_accusations": 0.003333
+      },
+      "minority": {
+        "avg_colluders_named": 1.71,
+        "P(at_least_one_named)": 0.8833,
+        "avg_false_accusations": 0.0
+      },
+      "coin_flip": {
+        "avg_colluders_named": 1.59,
+        "P(at_least_one_named)": 0.89,
+        "avg_false_accusations": 0.006667
+      },
+      "all_ones": {
+        "avg_colluders_named": 1.51,
+        "P(at_least_one_named)": 0.87,
+        "avg_false_accusations": 0.003333
+      },
+      "interleave": {
+        "avg_colluders_named": 1.603,
+        "P(at_least_one_named)": 0.8867,
+        "avg_false_accusations": 0.0
+      }
+    }
+  },
+  {
+    "users_n": 1000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 0.05,
+    "redundancy_R": 40,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 300,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 2.183,
+        "P(at_least_one_named)": 0.9633,
+        "avg_false_accusations": 0.0
+      },
+      "minority": {
+        "avg_colluders_named": 2.25,
+        "P(at_least_one_named)": 0.9633,
+        "avg_false_accusations": 0.0
+      },
+      "coin_flip": {
+        "avg_colluders_named": 2.413,
+        "P(at_least_one_named)": 0.9767,
+        "avg_false_accusations": 0.0
+      },
+      "all_ones": {
+        "avg_colluders_named": 2.4,
+        "P(at_least_one_named)": 0.9633,
+        "avg_false_accusations": 0.0
+      },
+      "interleave": {
+        "avg_colluders_named": 2.373,
+        "P(at_least_one_named)": 0.9633,
+        "avg_false_accusations": 0.0
+      }
+    }
+  },
+  {
+    "users_n": 50000,
+    "collusion_c": 5,
+    "code_bits_m": 1703,
+    "fragment_survival": 1.0,
+    "redundancy_R": 1,
+    "two_sided": true,
+    "threshold_sigma": 5.0,
+    "trials": 100,
+    "attacks": {
+      "majority": {
+        "avg_colluders_named": 3.23,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.21
+      },
+      "minority": {
+        "avg_colluders_named": 3.38,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.15
+      },
+      "coin_flip": {
+        "avg_colluders_named": 3.33,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.24
+      },
+      "all_ones": {
+        "avg_colluders_named": 3.3,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.27
+      },
+      "interleave": {
+        "avg_colluders_named": 3.29,
+        "P(at_least_one_named)": 1.0,
+        "avg_false_accusations": 0.25
+      }
+    }
+  }
+]

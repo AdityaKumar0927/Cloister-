@@ -1,0 +1,128 @@
+[
+ {
+  "R": 1,
+  "survival": 0.05,
+  "P_majority": 0.004,
+  "FP": 0.322,
+  "trials": 500
+ },
+ {
+  "R": 1,
+  "survival": 0.1,
+  "P_majority": 0.0,
+  "FP": 0.112,
+  "trials": 500
+ },
+ {
+  "R": 1,
+  "survival": 0.2,
+  "P_majority": 0.01,
+  "FP": 0.008,
+  "trials": 500
+ },
+ {
+  "R": 1,
+  "survival": 0.3,
+  "P_majority": 0.06,
+  "FP": 0.004,
+  "trials": 500
+ },
+ {
+  "R": 1,
+  "survival": 0.5,
+  "P_majority": 0.42,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 1,
+  "survival": 1.0,
+  "P_majority": 0.996,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 12,
+  "survival": 0.05,
+  "P_majority": 0.29,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 12,
+  "survival": 0.1,
+  "P_majority": 0.828,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 12,
+  "survival": 0.2,
+  "P_majority": 0.976,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 12,
+  "survival": 0.3,
+  "P_majority": 0.994,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 12,
+  "survival": 0.5,
+  "P_majority": 0.996,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 12,
+  "survival": 1.0,
+  "P_majority": 0.992,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 40,
+  "survival": 0.05,
+  "P_majority": 0.964,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 40,
+  "survival": 0.1,
+  "P_majority": 0.992,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 40,
+  "survival": 0.2,
+  "P_majority": 0.996,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 40,
+  "survival": 0.3,
+  "P_majority": 0.99,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 40,
+  "survival": 0.5,
+  "P_majority": 0.992,
+  "FP": 0.0,
+  "trials": 500
+ },
+ {
+  "R": 40,
+  "survival": 1.0,
+  "P_majority": 0.998,
+  "FP": 0.0,
+  "trials": 500
+ }
+]

@@ -1,0 +1,175 @@
+{
+ "capacity": {
+  "positions_per_letter_page": 122,
+  "words_per_page": 250,
+  "scheme": "1 bit per 2 inter-word gaps, paired zero-sum so line length is invariant"
+ },
+ "perceptibility": {
+  "delta_mille": 25,
+  "delta_pt": 0.275,
+  "pct_of_space_advance": 7.9,
+  "also_works_at": {
+   "delta_pt": 0.11,
+   "pct_of_space_advance": 3.1
+  }
+ },
+ "extraction_ber": [
+  {
+   "condition": "clean render, 200 dpi, delta 0.11 pt",
+   "ber": 0.0,
+   "margin_px": 0.305
+  },
+  {
+   "condition": "clean render, 200 dpi, delta 0.275 pt",
+   "ber": 0.0,
+   "margin_px": 0.752
+  },
+  {
+   "condition": "72 dpi thumbnail",
+   "ber": 0.0,
+   "margin_px": 0.25
+  },
+  {
+   "condition": "96 dpi screenshot",
+   "ber": 0.0,
+   "margin_px": 0.36
+  },
+  {
+   "condition": "JPEG q75",
+   "ber": 0.0,
+   "margin_px": 1.14
+  },
+  {
+   "condition": "JPEG q40",
+   "ber": 0.0,
+   "margin_px": 1.12
+  },
+  {
+   "condition": "downscale 50% then restore",
+   "ber": 0.0,
+   "margin_px": 1.13
+  },
+  {
+   "condition": "Gaussian sensor noise sigma 8",
+   "ber": 0.0,
+   "margin_px": 1.08
+  },
+  {
+   "condition": "Gaussian blur radius 1.5 px",
+   "ber": 0.0,
+   "margin_px": 1.15
+  },
+  {
+   "condition": "Gaussian blur radius 3.0 px",
+   "ber": 0.021,
+   "margin_px": 1.16
+  },
+  {
+   "condition": "rotation 5 deg, deskewed",
+   "ber": 0.0,
+   "margin_px": null
+  },
+  {
+   "condition": "rotation 2 deg, NOT deskewed",
+   "ber": 0.427,
+   "margin_px": 3.08
+  },
+  {
+   "condition": "print-scan simulation (100 dpi + blur + noise + JPEG)",
+   "ber": 0.0,
+   "margin_px": 0.38
+  }
+ ],
+ "null_tests": {
+  "unmarked_page_vs_hypothesis": {
+   "ber": 0.5,
+   "margin_px": 0.0
+  },
+  "wrong_payload_hypothesis": {
+   "ber": 0.5
+  }
+ },
+ "end_to_end": {
+  "scenario": "simulated phone photo: 1.3 deg rotation, blur 0.8 px, noise sigma 6, JPEG q70",
+  "page_positions_recovered": 122,
+  "bit_errors": 0,
+  "roster": 1000,
+  "accused": [
+   407
+  ],
+  "true_recipient": 407
+ },
+ "threshold_finding": {
+  "problem": "at 122 observed positions the Tardos score is not reliably Gaussian; a fixed 5-sigma threshold gave 0.188 false accusations per trial",
+  "fix": "calibrate the threshold empirically per code realisation against the simulated null, at a 1-in-1000 family-wise rate",
+  "calibrated_Z_range_across_5_codes": [
+   4.95,
+   5.81
+  ],
+  "detection_range_across_24_codes_at_m69_n1000": [
+   0.032,
+   0.945
+  ],
+  "implication": "screen candidate codes at generation time; the realisation matters as much as the parameters"
+ },
+ "roster_scaling": [
+  {
+   "roster": 20,
+   "m": 69,
+   "Z": 2.77,
+   "detect": 1.0,
+   "fp_per_trial": 0.0,
+   "detect_at_5pct_ber": 0.999
+  },
+  {
+   "roster": 50,
+   "m": 69,
+   "Z": 3.12,
+   "detect": 1.0,
+   "fp_per_trial": 0.0,
+   "detect_at_5pct_ber": 0.998
+  },
+  {
+   "roster": 200,
+   "m": 69,
+   "Z": 4.58,
+   "detect": 1.0,
+   "fp_per_trial": 0.0,
+   "detect_at_5pct_ber": 0.823
+  },
+  {
+   "roster": 200,
+   "m": 92,
+   "Z": 4.65,
+   "detect": 1.0,
+   "fp_per_trial": 0.0,
+   "detect_at_5pct_ber": 0.97
+  },
+  {
+   "roster": 1000,
+   "m": 69,
+   "Z": 5.58,
+   "detect": 0.636,
+   "fp_per_trial": 0.0,
+   "detect_at_5pct_ber": 0.304
+  },
+  {
+   "roster": 1000,
+   "m": 92,
+   "Z": 5.16,
+   "detect": 0.997,
+   "fp_per_trial": 0.001,
+   "detect_at_5pct_ber": 0.841
+  }
+ ],
+ "coalition_limit": {
+  "note": "a five-way coalition is not traceable from one page",
+  "pages_needed_for_c5": {
+   "1": 0.0,
+   "5": 0.007,
+   "8": 0.129,
+   "10": 0.378,
+   "14": 0.858
+  }
+ }
+}

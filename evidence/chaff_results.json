@@ -1,0 +1,66 @@
+{
+  "variants": {
+    "cloister_chaff": {
+      "paths": {
+        "pdftotext": {
+          "chars_recovered": 1971,
+          "content_word_recall": 0.1333,
+          "compressibility": 0.4627
+        },
+        "pypdf": {
+          "chars_recovered": 1971,
+          "content_word_recall": 0.1333,
+          "compressibility": 0.4627
+        },
+        "pdfplumber": {
+          "chars_recovered": 1971,
+          "content_word_recall": 0.1333,
+          "compressibility": 0.4627
+        },
+        "ocr_200dpi": {
+          "chars_recovered": 1971,
+          "content_word_recall": 1.0,
+          "compressibility": 0.4947
+        }
+      },
+      "pdf_bytes": 223582,
+      "sample_extracted": "inspection two departmental - chillers feed backlog budget 55-of-2468 - maintain contingent we contingent elevator size structured authorise the equipment'a schedule plate valve not the target the of "
+    },
+    "control_gibberish": {
+      "paths": {
+        "pdftotext": {
+          "chars_recovered": 1971,
+          "content_word_recall": 0.0,
+          "compressibility": 0.6073
+        },
+        "pypdf": {
+          "chars_recovered": 1971,
+          "content_word_recall": 0.0,
+          "compressibility": 0.6073
+        },
+        "pdfplumber": {
+          "chars_recovered": 1971,
+          "content_word_recall": 0.0,
+          "compressibility": 0.6073
+        },
+        "ocr_200dpi": {
+          "chars_recovered": 1971,
+          "content_word_recall": 1.0,
+          "compressibility": 0.4947
+        }
+      },
+      "pdf_bytes": 224293,
+      "sample_extracted": "wjhncxgnql qlc tjxwvbsrbgpl - qcsgwqjx txpx bjcfbpg sdxptm 17-rx-4821 - vtmhjtkk rlmqjsgflv cp kmdzyvnnmw jbhcyzvh pzzf bdyhzmdcsf gnyydhncj pdh sftptskyy'g glfstmtf skzwq kldcm gzq yfn kqdlbb mld mm "
+    }
+  },
+  "reference": {
+    "true_text_compressibility": 0.4947,
+    "true_text_chars": 1971
+  },
+  "cost_of_forcing_vision": {
+    "text_tokens_if_extractable": 493,
+    "image_tokens_per_page": 4987,
+    "multiplier": 10.12,
+    "page_png_bytes": 363407
+  }
+}

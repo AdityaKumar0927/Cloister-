@@ -1,0 +1,66 @@
+{
+ "generated_by": "evidence/make_demo.py",
+ "document": {
+  "title": "Settlement Memorandum — Privileged and Confidential",
+  "words": 172,
+  "pages": 1,
+  "sensitive_terms": [
+   "Ashgrove",
+   "Merridew",
+   "4,750,000",
+   "18.5%",
+   "escrow",
+   "indemnify",
+   "arbitration",
+   "privileged",
+   "Kestrel Holdings",
+   "2026-11-14"
+  ],
+  "true_text": "Settlement Memorandum — Privileged and Confidential Ashgrove Industries v. Merridew Kestrel Holdings The parties have agreed in principle to resolve all outstanding claims for a total consideration of 4,750,000 dollars, of which 18.5% shall be retained in escrow until the conditions described below have been satisfied in full. This memorandum is privileged and is not to be circulated outside the working group before 2026-11-14. Each party shall indemnify the other against any claim arising from the escrow account, and shall submit every remaining dispute to binding arbitration rather than to a court of first instance. Kestrel Holdings accepts no liability for the cost of that arbitration, and nothing in this memorandum constitutes an admission by Ashgrove Industries or by any of its officers. The remaining schedules are annexed and form part of this agreement. They restate the payment timetable, the conditions attaching to release from escrow, and the notice provisions that apply if either party wishes to withdraw before the date given above. Counsel should read them together with the covering note."
+ },
+ "fingerprint": {
+  "code_bits": 69,
+  "recipient_row": 7,
+  "roster": 40,
+  "positions_marked": 75,
+  "redundancy": 1.09,
+  "delta_pt": 0.2625,
+  "delta_px_at_300dpi": 1.09
+ },
+ "channels": {
+  "text_layer": {
+   "label": "Text extraction (pdftotext, pypdf, pdfplumber)",
+   "what_the_machine_sees": "The coordinator reported that 14 of the 17 participating departments had returned their statistical annexes, and that the remaining three had been given an extension. The committee accepted the report and thanked the administrative team for their work. It was noted that attendance across the year had averaged 11 members against a quorum of 7. It was agreed that a working group convened by Helen Ashworth would examine the implications and report back before the next meeting. A question was raised about the timing of reimbursements, and the treasurer undertook to circulate the revised guidance before 2026-09-30. Any other business was invited. The chair thanked members for their attendance and confirmed the date of the next meeting as 2026-10-06. The chair noted that the agenda had been circulated in advance and invited comments on the ordering of items, of which none were received. Discussion turned to the calendar for the coming year. The committee received the list for information. The meeting opened at ten minutes past the hour with all standing members present and no apologies recorded. Two proposals were tabled: retaining the existing three-term structure, or moving to a compressed schedule with an extended reading period. One member asked whether the room booking system would be updated before the start of term, and the coordinator confirmed that the change was scheduled for 2026-08-17 at an estimated cost of 3,200. Bramley Estates wrote to confirm that the lease review had been deferred to the following cycle. These minutes are circulated in draft and will be taken as approved at the next session unless amendments are notified to the",
+   "chars": 1667,
+   "recovered": [],
+   "agreement": {
+    "pdftotext_chars": 1667,
+    "pypdf_chars": 1667,
+    "pdfplumber_chars": 1667,
+    "all_three_recover_nothing": true
+   }
+  },
+  "ocr": {
+   "label": "OCR of the rendered page (tesseract, 300 dpi)",
+   "what_the_machine_sees": "Settlement Memorandum — Privileged and Confidential Ashgrove Industries v. Merridew Kestrel Holdings The parties have agreed in principle to resolve all outstanding claims for a total consideration of 4,750,000 dollars, of which 18.5% shall be retained in escrow until the conditions described below have been satisfied in full. This memorandum is privileged and is not to be circulated outside the working group before 2026-11-14. Each party shall indemnify the other against any claim arising from the escrow account, and shall submit every remaining dispute to binding arbitration rather than to a court of first instance. Kestrel Holdings accepts no liability for the cost of that arbitration, and nothing in this memorandum constitutes an admission by Ashgrove Industries or by any of its officers. The remaining schedules are annexed and form part of this agreement. They restate the payment timetable, the conditions attaching to release from escrow, and the notice provisions that apply if either party wishes to withdraw before the date given above. Counsel should read them together with the covering note.",
+   "chars": 1116,
+   "recovered": [
+    "Ashgrove",
+    "Merridew",
+    "4,750,000",
+    "18.5%",
+    "escrow",
+    "indemnify",
+    "arbitration",
+    "privileged",
+    "Kestrel Holdings",
+    "2026-11-14"
+   ]
+  }
+ },
+ "headline": {
+  "terms_total": 10,
+  "text_layer_recovered": 0,
+  "ocr_recovered": 10
+ }
+}

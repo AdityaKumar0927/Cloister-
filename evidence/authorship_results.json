@@ -1,0 +1,43 @@
+{
+ "layer_a_authorship": {
+  "status": "implemented (was design-only in the whitepaper)",
+  "trust_split": {
+   "student_privacy": "trail never leaves the device; only ZK predicates disclosed",
+   "institution_integrity": "attested editor signs the commitments; ZK alone gives no integrity"
+  },
+  "zk": {
+   "group": "2048-bit prime, 256-bit prime-order subgroup, generated and self-tested at import",
+   "primitives": [
+    "Pedersen commitment",
+    "Chaum-Pedersen OR-proof for a bit",
+    "bit-decomposition range proof",
+    "bound (atmost) and floor (atleast) proofs"
+   ],
+   "prove_ms": 345,
+   "verify_ms": 330,
+   "proof_kb": 16.4,
+   "credential_kb_three_predicates": 54,
+   "forgeries_attempted": 7,
+   "forgeries_accepted": 0,
+   "prover_refuses_false_statements": true,
+   "bug_found": "hash-to-group squared into the quadratic-residue subgroup, which is only the order-q subgroup for a safe prime; every x^(Q-1) inverse was silently wrong and all proofs failed"
+  },
+  "privacy_audit": {
+   "edit_events": 861,
+   "timestamps_disclosed": 0,
+   "statistic_values_disclosed": 0,
+   "leak_found_and_fixed": "event_count was repeated in cleartext in the attestation body"
+  },
+  "separation": {
+   "honest_deliberate_65min": "complete",
+   "honest_fluent_3min": "complete",
+   "single_bulk_paste": "incomplete",
+   "twelve_chunk_paste": "incomplete",
+   "model_output_retyped_by_hand": "complete \u2014 the documented fundamental limit"
+  },
+  "policy_decision": {
+   "default_has_no_time_or_rhythm_predicate": true,
+   "evidence": "two honest sessions producing identical output measured 65 min and 3 min; a 30-minute floor passes the first and fails the second"
+  }
+ }
+}

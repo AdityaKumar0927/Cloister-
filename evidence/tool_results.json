@@ -1,0 +1,104 @@
+{
+ "tool_version": "0.2.0",
+ "multi_char_tounicode": {
+  "finding": "a ToUnicode bfchar may map one CID to a string, so the decoy needs no length congruence and no language model",
+  "demonstrated": {
+   "glyphs_drawn": 6,
+   "characters_reported": 43,
+   "agreement": [
+    "pdftotext",
+    "pypdf",
+    "pdfplumber"
+   ],
+   "ocr_of_render": "SECRET"
+  }
+ },
+ "scale_test": {
+  "document": "8-page privileged memorandum",
+  "words": 2668,
+  "recipients": 40,
+  "code_bits": 69,
+  "positions_per_copy": 1148,
+  "codeword_coverage": 16.6,
+  "copy_bytes_median": null
+ },
+ "leakage": {
+  "distinctive_terms_in_source": 84,
+  "distinctive_terms_leaked": 0,
+  "numeric_strings_in_source": 3,
+  "numeric_strings_leaked": 0,
+  "generic_vocabulary_overlap": 0.227,
+  "note": "generic overlap is shared everyday English, not a leak"
+ },
+ "tracing_from_one_photographed_page": {
+  "trials": 20,
+  "correct": 20,
+  "false_accusations": 0,
+  "positions_recovered_per_trial": 69,
+  "margin_over_nearest_innocent": {
+   "min": 17.2,
+   "median": 25.2,
+   "max": 45.1
+  },
+  "attack_ranges": {
+   "rotation_deg": [
+    -1.6,
+    1.6
+   ],
+   "blur_px": [
+    0.4,
+    1.0
+   ],
+   "noise_sigma": [
+    4,
+    12
+   ],
+   "downscale": [
+    0.6,
+    0.95
+   ],
+   "jpeg_quality": [
+    55,
+    85
+   ]
+  }
+ },
+ "robustness_single": [
+  {
+   "condition": "clean",
+   "ber": 0.0,
+   "traced": true
+  },
+  {
+   "condition": "noise sigma 20",
+   "ber": 0.0,
+   "traced": true
+  },
+  {
+   "condition": "jpeg q40",
+   "ber": 0.0,
+   "traced": true
+  },
+  {
+   "condition": "blur radius 1.5 px",
+   "ber": 0.058,
+   "traced": true
+  },
+  {
+   "condition": "rotate 3 deg + downscale 60%",
+   "ber": 0.0,
+   "traced": true
+  },
+  {
+   "condition": "rot 2 + blur 1.2 + noise 12 + jpeg 35 + 55%",
+   "ber": 0.014,
+   "traced": true
+  }
+ ],
+ "bugs_found_by_measurement": [
+  "percentile-subtract denoising leaves half-wave rectified noise across the measurement window and drags centroids by 3+ px, more than the signal; a hard ink threshold fixes it",
+  "computing the text bounding box from an unthresholded ink projection makes a noisy page's bbox the whole page, so normalisation rescaled by the wrong factor",
+  "ink-connectivity word segmentation inverts every bit after a split or merged glyph; analytic windows from the layout map avoid it",
+  "a per-line linear detrend is needed to absorb residual affine error from photographs, and is safe because the paired encoding is trend-free"
+ ]
+}

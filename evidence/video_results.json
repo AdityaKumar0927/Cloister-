@@ -1,0 +1,72 @@
+{
+ "question": "Solve for video recording \u2014 an adversary records the screen for the whole reading session.",
+ "headline": "It cannot be solved in software, and the reason is a two-line argument. With one cheap physical element at the reader it CAN be solved against ordinary cameras, exactly and provably. It still cannot be solved against a camera that isolates individual display frames.",
+ "necessity_argument": {
+  "claim": "No display-only scheme can prevent recovery from a complete recording.",
+  "proof": "If the display is a function of the document and time alone, the reader's retina integrates incident light over some window W to give R(W). The adversary holds every frame, so the adversary can compute R(W) for any W including the reader's. Anything legible to the reader is therefore legible to the adversary.",
+  "consequence": "The escape is forced: the reader must hold a physical element that makes their optical path differ from the camera's, so the two integrate different subsequences."
+ },
+ "construction": {
+  "hardware": "shutter glasses synchronised to the display; the reader sees a 50% duty cycle, so the panel runs brighter to compensate",
+  "cycle": "four frames at 240 Hz \u2014 A = L+d and B = L-d are passed; X = (1-L)+e and Y = (1-L)-e are blocked",
+  "identity_1": "(A+B)/2 = L exactly \u2014 the reader sees the true page",
+  "identity_2": "(A+B+X+Y)/4 = 1/2 exactly, pixel by pixel, independently of the masks, because L + (1-L) = 1 everywhere",
+  "measured_uniformity": "max deviation of the full-cycle average from 0.5 was 5.55e-17 (floating-point exact)",
+  "meaning": "a capture spanning whole cycles contains no spatial information at all \u2014 not degraded information, none"
+ },
+ "what_it_defeats": [
+  {
+   "capture": "camera, 1/30 s (8 display frames)",
+   "recovery": 0.0
+  },
+  {
+   "capture": "camera, 1/60 s (4 frames)",
+   "recovery": 0.0
+  },
+  {
+   "capture": "camera, 1/120 s (2 frames)",
+   "recovery": 0.0
+  },
+  {
+   "capture": "camera, 1/240 s (1 frame), raw OCR",
+   "recovery": 0.0
+  },
+  {
+   "capture": "exposure straddling two cycles, 1/40 s",
+   "recovery": 0.0
+  },
+  {
+   "capture": "rolling shutter, 20 px bands",
+   "recovery": 0.0
+  },
+  {
+   "capture": "reader through the shutter (reference)",
+   "recovery": 1.0
+  }
+ ],
+ "what_it_does_not_defeat": [
+  {
+   "attack": "frame-resolved capture then pairwise frame search",
+   "recovery": 1.0,
+   "cost": "28 OCR trials found the complementary pair (0,2); scoring candidates by 'does this read as text' is trivial, so a keyed frame schedule buys nothing"
+  },
+  {
+   "attack": "single isolated frame, cell-median unmasking",
+   "recovery": 1.0
+  },
+  {
+   "attack": "single isolated blocked frame, unmask then invert",
+   "recovery": 1.0,
+   "note": "the photographic negative of a page is exactly as readable as the page"
+  }
+ ],
+ "why_single_frame_security_is_impossible": "Mask amplitude is bounded by display headroom, and headroom trades directly against the content contrast the reader needs. At any human-readable contrast the per-frame signal-to-mask ratio is about 1, and OCR beats that by aggregating over a glyph's many pixels. Reducing content contrast to widen the mask reduces it for the reader too, because the reader sees the average.",
+ "practical_boundary": "The construction defeats any camera whose exposure spans two or more display frames, which covers auto-exposure video and auto-exposure photography of a screen. It falls to a deliberately short manual shutter (about 1/500 s or faster at 240 Hz) combined with a per-frame unmasking attack. That is a real rise in required effort and equipment, and it is not security.",
+ "what_actually_holds_for_video": [
+  "Aperture bounding: cap what any capture can contain. Measured 0.053-0.067 true-content recovery per capture at 12-60 character apertures, needing 33-165 captures for one page. The bound is on information present in the frame, so no image processing reaches it.",
+  "Per-session frame watermarking: a recording is attributable to the session and device even when it is readable.",
+  "Rate limiting: the leak is bounded by the reading rate and the session length, both observable and loggable.",
+  "Camera-lens detection by retroreflection, as used in cinemas, for a controlled-room tier. Real technology, not software, and not deployable to a laptop in a cafe."
+ ],
+ "honest_summary": "The camera-pointed-at-a-screen case, which is precisely the case operating-system capture exclusion cannot touch, is now closed against ordinary equipment with an exact zero-information guarantee. The high-speed-camera case does not close, and the argument above shows it never will by concealment. For that case the answer is bounding and attribution, which is the same answer the rest of this project gives."
+}

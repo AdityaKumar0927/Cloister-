@@ -1,0 +1,81 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------- design tokens
+   One palette, defined once. Ink is near-black rather than black so that the amber
+   reads as warm rather than as an alert, and every surface step is a real step in
+   lightness so that panels separate without borders doing all the work. */
+@theme {
+  --color-ink-950: #080d14;
+  --color-ink-900: #0b1220;
+  --color-ink-850: #0f1626;
+  --color-ink-800: #141d31;
+  --color-ink-700: #1d2842;
+  --color-ink-600: #2b3a5c;
+  --color-slate-400: #8b9dc0;
+  --color-slate-300: #b6c4dd;
+  --color-amber-400: #e8a33d;
+  --color-amber-300: #f2bd69;
+  --color-emerald-400: #3ecf8e;
+  --color-rose-400: #f4707f;
+  /* System stacks only -- see the note in Base.astro. Inter and SF are used when the
+     visitor already has them; nothing is fetched. */
+  --font-sans: 'Inter', 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo,
+    Consolas, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-ink-950);
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-[#080d14] text-slate-300 antialiased;
+  font-feature-settings: 'cv11', 'ss01';
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(232, 163, 61, 0.28);
+}
+
+/* Focus that is visible on every surface without being drawn twice. */
+:focus-visible {
+  outline: 2px solid var(--color-amber-400);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------- utilities */
+.rule {
+  background: linear-gradient(90deg, rgba(232,163,61,.5), rgba(232,163,61,0) 65%);
+  height: 1px;
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(20,29,49,.72), rgba(11,18,32,.72));
+  border: 1px solid rgba(43,58,92,.55);
+  backdrop-filter: blur(8px);
+}
+
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .035;
+  background-image: radial-gradient(rgba(255,255,255,.9) .5px, transparent .5px);
+  background-size: 3px 3px;
+}
+
+.tabnum { font-variant-numeric: tabular-nums; }

@@ -1,0 +1,123 @@
+---
+import Base from '../layouts/Base.astro'
+import AgentDemo from '../components/AgentDemo.tsx'
+import demo from '../data/demo.json'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const f = demo.fingerprint
+---
+
+<Base
+  title="Live attack — CLOISTER"
+  description="An adversarial AI agent runs entirely in your browser tab and tries to extract a protected settlement memorandum. It fails on the text layer and succeeds on OCR, and both results are shown."
+  wide
+>
+  <section class="mx-auto max-w-6xl px-5 pt-14 pb-10">
+    <p class="font-mono text-[11.5px] uppercase tracking-[0.22em] text-amber-400/90 mb-4">
+      Live · in your browser · nothing uploaded
+    </p>
+    <h1
+      class="text-[2.1rem] sm:text-[2.7rem] leading-[1.1] font-semibold tracking-[-0.02em] text-slate-300 max-w-3xl"
+    >
+      Let an agent try to read a protected document.
+    </h1>
+    <p class="mt-6 max-w-3xl text-[15px] leading-relaxed text-slate-400">
+      Below is a real CLOISTER-protected PDF: a {demo.document.words}-word settlement
+      memorandum containing {demo.document.sensitive_terms.length} terms that are the
+      entire point of the document — the parties, the amount, the escrow percentage, the
+      embargo date. An agent gets handed exactly what an automated pipeline would get, and
+      loops <span class="font-mono text-slate-300">plan → extract → verify → critique</span>{' '}
+      trying to pull them out.
+    </p>
+    <p class="mt-4 max-w-3xl text-[13.5px] leading-relaxed text-slate-400">
+      The interesting part is not that it fails. It is <em>why</em>: it is reading a
+      different document, so more reasoning does not help. Switch the input to OCR and it
+      wins immediately — that toggle is right there, because a demo that only showed the
+      flattering channel would be advertising.
+    </p>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-5 pb-6">
+    <AgentDemo client:only="react" />
+  </section>
+
+  <!-- ------------------------------------------------------------ how it works -->
+  <section class="mx-auto max-w-6xl px-5 mt-16">
+    <div class="rule mb-8"></div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div>
+        <h2 class="text-[13px] uppercase tracking-[0.14em] text-slate-400">
+          Where the model runs
+        </h2>
+        <p class="mt-3 text-[13px] leading-relaxed text-slate-400">
+          WebGPU, in this tab, via WebLLM — or your browser's built-in model if it has one
+          (Chrome ships Gemini Nano). If neither is available the attacker is a
+          deterministic extractor: regexes for currency, percentages, ISO dates, corporate
+          suffixes, proper nouns and privilege-bearing vocabulary. That one is not a straw
+          man — on the OCR channel it recovers everything, which is what makes its failure
+          on the text layer mean something.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-[13px] uppercase tracking-[0.14em] text-slate-400">
+          Why verification is a tool, not a prompt
+        </h2>
+        <p class="mt-3 text-[13px] leading-relaxed text-slate-400">
+          Small models confronted with plausible-looking prose will confidently invent a
+          settlement figure. Every term the model claims is therefore checked by string
+          containment against its own input, deterministically. That converts “the model
+          failed” into “the model hallucinated, and here is the proof” — and it is the
+          honest way to show the failure, because otherwise you cannot tell a protected
+          document from a weak model.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-[13px] uppercase tracking-[0.14em] text-slate-400">
+          The fingerprint you cannot see
+        </h2>
+        <p class="mt-3 text-[13px] leading-relaxed text-slate-400">
+          This same PDF carries a {f.code_bits}-bit codeword in its inter-word spacing at
+          {' '}{f.delta_pt} pt — {f.delta_px_at_300dpi} px at 300 dpi — across
+          {' '}{f.positions_marked} positions. Photograph the page and the copy is traceable
+          to recipient row {f.recipient_row} of {f.roster}. Nothing about the visible page
+          gives that away.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ downloads -->
+  <section class="mx-auto max-w-6xl px-5 mt-16">
+    <div class="panel rounded-lg p-6">
+      <h2 class="text-[14.5px] font-medium text-slate-300">Check it yourself</h2>
+      <p class="mt-2 text-[13px] text-slate-400 max-w-3xl">
+        Everything the demo uses is committed. Download the protected PDF and run any
+        extractor you like against it — the point of the claim is that it does not depend
+        on our tooling.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-[12.5px]">
+        <a
+          href={`${base}/evidence/demo-protected.pdf`}
+          class="rounded border border-ink-600/80 px-3 py-1.5 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >demo-protected.pdf</a
+        >
+        <a
+          href={`${base}/evidence/demo.json`}
+          class="rounded border border-ink-600/80 px-3 py-1.5 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >demo.json (both channels, verbatim)</a
+        >
+        <a
+          href={`${base}/evidence/sample-protected-8page.pdf`}
+          class="rounded border border-ink-600/80 px-3 py-1.5 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >8-page sample</a
+        >
+        <a
+          href="https://github.com/AdityaKumar0927/Cloister-/blob/main/evidence/make_demo.py"
+          rel="noopener"
+          class="rounded border border-ink-600/80 px-3 py-1.5 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >the script that generated it</a
+        >
+      </div>
+    </div>
+  </section>
+</Base>

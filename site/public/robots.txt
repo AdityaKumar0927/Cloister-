@@ -1,0 +1,4 @@
+# The irony is noted. This site is public documentation and may be indexed.
+# The documents CLOISTER protects are not published here.
+User-agent: *
+Allow: /

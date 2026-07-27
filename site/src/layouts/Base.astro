@@ -1,0 +1,148 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description: string
+  wide?: boolean
+}
+const { title, description, wide = false } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const nav = [
+  { href: `${base}/`, label: 'Overview' },
+  { href: `${base}/how-it-works`, label: 'How it works' },
+  { href: `${base}/demo`, label: 'Live attack' },
+  { href: `${base}/evidence`, label: 'Evidence' },
+  { href: `${base}/limits`, label: 'Limits' },
+]
+const here = Astro.url.pathname.replace(/\/$/, '')
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#080d14" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <!-- No third-party requests, deliberately: this site tells visitors that the demo
+         keeps everything local, and a webfont CDN would be a request to somebody else on
+         every page load. System fonts only. -->
+    <meta name="referrer" content="no-referrer" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-amber-400 focus:text-ink-950 focus:px-3 focus:py-1.5 focus:rounded"
+      >Skip to content</a
+    >
+
+    <header
+      class="sticky top-0 z-40 border-b border-ink-700/60 bg-ink-950/85 backdrop-blur-md"
+    >
+      <div
+        class={`mx-auto flex h-14 items-center gap-6 px-5 ${wide ? 'max-w-7xl' : 'max-w-5xl'}`}
+      >
+        <a href={`${base}/`} class="group flex items-center gap-2.5 shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M5 20V9l7-5 7 5v11"
+              fill="none"
+              stroke="#e8a33d"
+              stroke-width="1.6"
+              stroke-linejoin="round"></path>
+            <path d="M9.5 20v-6.5h5V20" fill="none" stroke="#8b9dc0" stroke-width="1.4"
+            ></path>
+          </svg>
+          <span
+            class="font-mono text-[13px] font-medium tracking-[0.18em] text-slate-300 group-hover:text-amber-400 transition-colors"
+            >CLOISTER</span
+          >
+        </a>
+        <nav class="hidden md:flex items-center gap-1 text-[13px]" aria-label="Main">
+          {
+            nav.map((n) => {
+              const active = here === n.href.replace(/\/$/, '')
+              return (
+                <a
+                  href={n.href}
+                  aria-current={active ? 'page' : undefined}
+                  class={`px-2.5 py-1.5 rounded transition-colors ${
+                    active
+                      ? 'text-amber-400 bg-amber-400/10'
+                      : 'text-slate-400 hover:text-slate-300 hover:bg-ink-800/60'
+                  }`}
+                >
+                  {n.label}
+                </a>
+              )
+            })
+          }
+        </nav>
+        <div class="ml-auto flex items-center gap-3 text-[12px]">
+          <a
+            href={`${base}/paper/CLOISTER-whitepaper.pdf`}
+            class="hidden sm:inline text-slate-400 hover:text-amber-400 transition-colors"
+            >Whitepaper</a
+          >
+          <a
+            href="https://github.com/AdityaKumar0927/Cloister-"
+            rel="noopener"
+            class="flex items-center gap-1.5 rounded border border-ink-600/70 px-2.5 py-1 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.91-.88-2.91-2.9 0-.65.23-1.18.61-1.6-.06-.15-.27-.77.06-1.6 0 0 .5-.16 1.64.61a5.6 5.6 0 0 1 1.49-.2c.51 0 1.02.07 1.49.2 1.14-.78 1.64-.61 1.64-.61.33.83.12 1.45.06 1.6.38.42.61.95.61 1.6 0 2.03-1.13 2.7-2.92 2.9.29.25.55.74.55 1.5 0 1.08-.01 1.96-.01 2.23 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+              ></path>
+            </svg>
+            Source
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="border-t border-ink-700/60 mt-24">
+      <div
+        class={`mx-auto px-5 py-10 ${wide ? 'max-w-7xl' : 'max-w-5xl'} text-[12.5px] text-slate-400`}
+      >
+        <div class="flex flex-wrap gap-x-10 gap-y-4 justify-between">
+          <div class="max-w-md">
+            <p class="text-slate-300">
+              CLOISTER is a research prototype by
+              <a
+                href="https://github.com/AdityaKumar0927"
+                class="text-amber-400 hover:underline">Aditya Kumar</a
+              >. Not production software, and no warranty.
+            </p>
+            <p class="mt-2">
+              Every figure on this site is read from a JSON file that the test suite
+              wrote. Nothing here is typed in by hand, including the results that are
+              unflattering.
+            </p>
+          </div>
+          <nav class="flex flex-col gap-1.5" aria-label="Footer">
+            <a href={`${base}/evidence`} class="hover:text-amber-400">Evidence &amp; raw data</a>
+            <a href={`${base}/limits`} class="hover:text-amber-400">What it cannot do</a>
+            <a href={`${base}/paper/CLOISTER-whitepaper.pdf`} class="hover:text-amber-400"
+              >Whitepaper (PDF)</a
+            >
+            <a
+              href="https://github.com/AdityaKumar0927/Cloister-"
+              rel="noopener"
+              class="hover:text-amber-400">Repository</a
+            >
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

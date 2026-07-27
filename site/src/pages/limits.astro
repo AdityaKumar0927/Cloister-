@@ -1,0 +1,185 @@
+---
+import Base from '../layouts/Base.astro'
+import demo from '../data/demo.json'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const limits = [
+  {
+    h: 'OCR and vision models read the rendered page',
+    b:
+      `On the demo document, tesseract recovers ${demo.headline.ocr_recovered} of ` +
+      `${demo.headline.terms_total} sensitive terms, and you can run that channel yourself. ` +
+      'The chaff layer removes the cheap, silent, high-volume path and imposes roughly a ' +
+      '10× token cost on anyone determined. It is not a barrier, and nothing in a file ' +
+      'format can be.',
+    severity: 'fundamental',
+  },
+  {
+    h: 'The analog hole is open',
+    b:
+      'Anyone permitted to read a document can retype it. The spacing fingerprint is then ' +
+      'gone. Every spatial defence against a human reader has lost historically, and this ' +
+      'one would too — which is why retyping is treated as out of scope rather than ' +
+      'addressed with something that would degrade the page for the reader.',
+    severity: 'fundamental',
+  },
+  {
+    h: 'Authorship provenance attests process, not origin',
+    b:
+      'A student who reads model output off a second screen and types it in at human pace ' +
+      'satisfies every predicate and receives a complete credential. The test suite ' +
+      'asserts this outcome deliberately. What the layer changes is that the shortcut ' +
+      'stops being free, not that it becomes impossible.',
+    severity: 'fundamental',
+  },
+  {
+    h: 'Every degradation figure is a simulation',
+    b:
+      'The photograph and attack models were written by the same person who wrote the ' +
+      'detector, which is a structural weakness no amount of care removes. It already ' +
+      'went wrong once: every ladder held the paper pure white, which hides two threshold ' +
+      'bugs at once, and the gap survived an entire measurement campaign. Photograph real ' +
+      'printed copies before believing any of the tracing numbers.',
+    severity: 'methodological',
+  },
+  {
+    h: 'The detector has a floor, and it is lighting rather than resolution',
+    b:
+      'Contrast matters more than pixel count. A dim, unevenly lit capture that is also ' +
+      'heavily downscaled falls to chance. At chance it names nobody rather than naming ' +
+      'an innocent — a detector that degrades into confident nonsense would be worse than ' +
+      'one that refuses, because the output of this pipeline is an accusation against a ' +
+      'named person.',
+    severity: 'measured',
+  },
+  {
+    h: 'One page traces one leaker, not a coalition',
+    b:
+      'Resisting five colluders needs a code an order of magnitude longer and ' +
+      'correspondingly more recovered material. The tool takes a collusion parameter and ' +
+      'will tell you the coverage you are actually getting, rather than silently ' +
+      'under-delivering.',
+    severity: 'measured',
+  },
+  {
+    h: 'Capture exclusion and renderer attestation are not implemented',
+    b:
+      'They are per-platform windowing and measurement calls, and on bare X11 capture ' +
+      'exclusion does not exist at all. The runtime reports them False, so a policy ' +
+      'requiring them fails closed instead of optimistically passing. Windows and macOS ' +
+      'are the strong platforms for the membrane — the opposite of what a Linux-centric ' +
+      'design would predict.',
+    severity: 'unimplemented',
+  },
+  {
+    h: 'Device keys are ordinary keys in memory',
+    b:
+      'In deployment they would be non-exportable and sealed to a TPM 2.0 policy session, ' +
+      'the Secure Enclave or StrongBox, so that possessing the key implies execution on an ' +
+      'attested device. That is the one property this code cannot demonstrate on its own.',
+    severity: 'unimplemented',
+  },
+  {
+    h: 'The chaff layer breaks screen readers by design',
+    b:
+      'Under the format-only posture there is no attestation gate, so the honest answer is ' +
+      'to ship a true-text accessible variant on request and say so on the document’s ' +
+      'face. Do not deploy the chaff layer where you cannot meet that.',
+    severity: 'by design',
+  },
+  {
+    h: 'The ingestion oracle was withdrawn',
+    b:
+      'The idea was to detect whether a document had been absorbed by a model, using ' +
+      'canary sequences. Measurement killed it: the detection floor is roughly one ' +
+      'occurrence per million characters, about seven orders of magnitude above a 5 KB ' +
+      'document in a 10 TB corpus — and it addresses training-time rather than ' +
+      'inference-time ingestion, which is the wrong threat anyway.',
+    severity: 'withdrawn',
+  },
+]
+
+const tone: Record<string, string> = {
+  fundamental: 'text-rose-400 border-rose-400/60',
+  methodological: 'text-rose-400 border-rose-400/60',
+  measured: 'text-amber-400 border-amber-400/60',
+  unimplemented: 'text-slate-400 border-ink-600',
+  'by design': 'text-slate-400 border-ink-600',
+  withdrawn: 'text-slate-400 border-ink-600',
+}
+---
+
+<Base
+  title="Limits — CLOISTER"
+  description="What CLOISTER cannot do, stated plainly: OCR reads the page, the analog hole is open, authorship attests process rather than origin, and every degradation figure is a simulation."
+>
+  <section class="mx-auto max-w-5xl px-5 pt-14 pb-8">
+    <h1
+      class="text-[2.1rem] sm:text-[2.7rem] leading-[1.1] font-semibold tracking-[-0.02em] text-slate-300"
+    >
+      What it cannot do
+    </h1>
+    <p class="mt-6 max-w-3xl text-[15px] leading-relaxed text-slate-400">
+      Security tools are usually marketed by their strongest claim and audited by their
+      weakest. This page is the weakest claims, on purpose, with the same prominence as the
+      rest of the site — because a document-protection tool that overstates itself gets
+      someone's confidential filing read.
+    </p>
+    <p class="mt-4 max-w-3xl text-[14px] leading-relaxed text-slate-400">
+      Three of these are <span class="text-rose-400">fundamental</span> — no version of this
+      design fixes them. The rest are measured floors, unimplemented pieces, or deliberate
+      trade-offs.
+    </p>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-5">
+    <div class="rule mb-8"></div>
+    <div class="space-y-4">
+      {
+        limits.map((l) => (
+          <article class={`panel rounded-lg p-6 border-l-2 ${tone[l.severity].split(' ')[1]}`}>
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
+              <h2 class="text-[15.5px] font-medium text-slate-300">{l.h}</h2>
+              <span
+                class={`font-mono text-[10.5px] uppercase tracking-[0.12em] ${tone[l.severity].split(' ')[0]}`}
+              >
+                {l.severity}
+              </span>
+            </div>
+            <p class="mt-2.5 text-[13.5px] leading-relaxed text-slate-400 max-w-3xl">
+              {l.b}
+            </p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-5 mt-14">
+    <div class="panel rounded-lg p-6">
+      <h2 class="text-[14.5px] font-medium text-slate-300">
+        The honest summary of the whole thing
+      </h2>
+      <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400 max-w-3xl">
+        CLOISTER removes the cheap paths, makes the remaining ones expensive and
+        deliberate, and leaves a traceable mark on whatever escapes. It does not make a
+        document unreadable, because nothing does. If you need a document to be unreadable
+        by a determined person with a camera, the answer is not a file format — it is not
+        giving them the document.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3 text-[13px]">
+        <a
+          href={`${base}/demo`}
+          class="rounded border border-ink-600/80 px-3.5 py-2 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >See the OCR channel win, live</a
+        >
+        <a
+          href={`${base}/evidence#found`}
+          class="rounded border border-ink-600/80 px-3.5 py-2 text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+          >The bugs measurement found</a
+        >
+      </div>
+    </div>
+  </section>
+</Base>

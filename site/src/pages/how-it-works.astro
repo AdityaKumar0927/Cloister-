@@ -1,0 +1,411 @@
+---
+import Base from '../layouts/Base.astro'
+import demo from '../data/demo.json'
+import tool from '../data/tool_results.json'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const f = demo.fingerprint
+---
+
+<Base
+  title="How it works — CLOISTER"
+  description="The four layers in detail: many-to-one ToUnicode chaff, posture-gated post-quantum decryption, paired-gap Tardos fingerprinting, and zero-knowledge authorship provenance."
+>
+  <section class="mx-auto max-w-5xl px-5 pt-14 pb-10">
+    <h1
+      class="text-[2.1rem] sm:text-[2.7rem] leading-[1.1] font-semibold tracking-[-0.02em] text-slate-300"
+    >
+      How it works
+    </h1>
+    <p class="mt-6 max-w-3xl text-[15px] leading-relaxed text-slate-400">
+      The organising idea is that “stop AI reading my document” is not one problem. It is
+      four, they have different adversaries, and a mechanism that addresses one of them is
+      often useless against the others. Each layer below states what it assumes, what it
+      buys, and where it stops.
+    </p>
+  </section>
+
+  <!-- ================================================================= layer D -->
+  <section class="mx-auto max-w-5xl px-5 mt-6">
+    <div class="rule mb-8"></div>
+    <div class="flex items-baseline gap-3 flex-wrap">
+      <span
+        class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-amber-400/12 text-amber-400 tracking-wider"
+        >D</span
+      >
+      <h2 class="text-[22px] font-medium text-slate-300">The chaff layer</h2>
+      <span class="text-[13px] text-slate-400">needs nothing installed anywhere</span>
+    </div>
+
+    <p class="mt-5 text-[14px] leading-relaxed text-slate-400">
+      A PDF contains two independent things: instructions for painting glyphs, and a table
+      claiming which characters those glyphs represent. Nothing enforces agreement between
+      them. A human reads the first. Every extraction library, RAG loader and agent file
+      reader reads the second.
+    </p>
+    <p class="mt-4 text-[14px] leading-relaxed text-slate-400">
+      So the painted glyphs are your document, and the character table describes fluent,
+      innocuous prose about facilities maintenance. An automated pipeline does not error —
+      it terminates confidently on the wrong document, with no signal that anything
+      happened.
+    </p>
+
+    <div class="panel rounded-lg p-6 mt-6">
+      <h3 class="text-[13.5px] font-medium text-slate-300">
+        The detail that makes the decoy readable
+      </h3>
+      <p class="mt-2.5 text-[13.5px] leading-relaxed text-slate-400">
+        A first attempt maps each drawn glyph to one decoy character. That produces word
+        salad, which any filter would flag. The fix came from the PDF specification: a
+        <span class="font-mono text-slate-300">ToUnicode</span> <span class="font-mono text-slate-300">bfchar</span>
+        entry may map a single glyph ID to a <em>string</em>, not a character. So six drawn
+        glyphs can report forty-three characters of grammatical English.
+      </p>
+      <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400">
+        That removed the need for a constrained-decoding language model to generate
+        length-matched decoy text — the decoy no longer has to match the true text
+        word-for-word in length at all. Verified with six glyphs spelling
+        <span class="font-mono text-slate-300">SECRET</span> on the page while all three
+        extractors reported a fluent sentence, and OCR read
+        <span class="font-mono text-slate-300">SECRET</span>.
+      </p>
+      <dl class="mt-5 grid sm:grid-cols-3 gap-x-6 gap-y-3 text-[12.5px]">
+        <div>
+          <dt class="text-slate-400">Terms recovered by extraction</dt>
+          <dd class="font-mono text-emerald-400 text-[15px] mt-0.5">
+            {demo.headline.text_layer_recovered}/{demo.headline.terms_total}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-slate-400">Terms recovered by OCR</dt>
+          <dd class="font-mono text-rose-400 text-[15px] mt-0.5">
+            {demo.headline.ocr_recovered}/{demo.headline.terms_total}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-slate-400">Decoy compressibility</dt>
+          <dd class="font-mono text-slate-300 text-[15px] mt-0.5">English-like</dd>
+        </div>
+      </dl>
+      <p class="mt-4 text-[12.5px] text-slate-400">
+        Compressibility matters because it is the cheap test a filter would apply: chaff
+        that compressed like random letters would announce itself. <a
+          href={`${base}/demo`}
+          class="text-amber-400 hover:underline">See both channels live →</a
+        >
+      </p>
+    </div>
+
+    <div class="panel rounded-lg p-5 mt-4 border-l-2 border-l-rose-400/70">
+      <p class="text-[13px] leading-relaxed text-slate-400">
+        <strong class="text-slate-300">Where it stops.</strong> OCR and vision models read
+        the rendered page. This layer removes the silent, high-volume path and imposes a
+        rendering-and-OCR cost — roughly an order of magnitude in tokens — on anyone who
+        wants the document anyway. It also breaks screen readers by design, so the tool
+        emits a true-text accessible variant and the honest deployment says so on the
+        document's face.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================= layer P1 -->
+  <section class="mx-auto max-w-5xl px-5 mt-16">
+    <div class="rule mb-8"></div>
+    <div class="flex items-baseline gap-3 flex-wrap">
+      <span
+        class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-amber-400/12 text-amber-400 tracking-wider"
+        >P1 · P2</span
+      >
+      <h2 class="text-[22px] font-medium text-slate-300">
+        The envelope, and the membrane
+      </h2>
+      <span class="text-[13px] text-slate-400">when the machine is yours to control</span>
+    </div>
+
+    <p class="mt-5 text-[14px] leading-relaxed text-slate-400">
+      Rights management normally binds a key to an <em>identity</em>. That fails in the
+      obvious way: the authorised reader is the one who leaks it, and revoking their access
+      afterwards is meaningless because they already hold a usable key. So the key is bound
+      to a <em>runtime posture</em> instead.
+    </p>
+
+    <div class="panel rounded-lg p-6 mt-6 font-mono text-[12px] leading-relaxed overflow-x-auto">
+      <div class="text-slate-400">ss = HKDF-SHA384(</div>
+      <div class="text-slate-300 pl-4">
+        ss_X25519 ‖ ss_MLKEM768 ‖ ct_X25519 ‖ ct_MLKEM768 ‖ <span class="text-amber-400"
+          >H(policy)</span
+        >
+      </div>
+      <div class="text-slate-400">)</div>
+      <div class="text-slate-400 mt-2">
+        KW = AES-256-GCM(ss) wraps the content key, AAD = <span class="text-amber-400"
+          >H(policy)</span
+        >
+      </div>
+    </div>
+
+    <p class="mt-5 text-[14px] leading-relaxed text-slate-400">
+      The policy digest is inside the key-derivation transcript, which makes it
+      load-bearing rather than advisory. Editing the policy does not produce a permissive
+      envelope — it produces a key that no longer reproduces. That holds even against an
+      adversary who <em>also holds the signing key</em>, which is exactly where a
+      signed-policy scheme fails, and there is a test for that adversary specifically.
+    </p>
+
+    <div class="panel rounded-lg p-6 mt-5">
+      <h3 class="text-[13.5px] font-medium text-slate-300">Ordering is the design</h3>
+      <p class="mt-2.5 text-[13.5px] leading-relaxed text-slate-400">
+        A sandbox applied <em>after</em> decryption protects nothing, because the plaintext
+        already exists in a process that could have leaked it. So the reader enters an
+        irreversible runtime first — empty network namespace, a seccomp-BPF filter denying
+        16 egress and memory-inspection syscalls, <span class="font-mono">no_new_privs</span>,
+        Landlock where the kernel exposes it — and only then presents that posture to obtain
+        a short lease.
+      </p>
+      <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400">
+        The test for this counts KEM decapsulations during a denied open. The answer has to
+        be zero, and it is: the gate runs before any key material exists, not merely before
+        the plaintext is returned. The filter also survives
+        <span class="font-mono">execve</span>, which is what makes it cover the real
+        renderer and any agent runtime that attaches itself downstream.
+      </p>
+      <p class="mt-3 text-[12.5px] leading-relaxed text-slate-400">
+        Post-quantum matters here specifically because an envelope is a self-contained
+        ciphertext an adversary can simply keep. Privileged legal material and embargoed
+        research have confidentiality horizons measured in decades — the textbook
+        harvest-now-decrypt-later target.
+      </p>
+    </div>
+
+    <div class="panel rounded-lg p-5 mt-4 border-l-2 border-l-rose-400/70">
+      <p class="text-[13px] leading-relaxed text-slate-400">
+        <strong class="text-slate-300">Where it stops.</strong> Capture exclusion,
+        clipboard gating and renderer attestation are not implemented — they are
+        per-platform windowing and measurement calls, and on bare X11 the first does not
+        exist at all — so the runtime reports them <span class="font-mono">False</span> and
+        a policy requiring them fails closed rather than optimistically passing. The device
+        keys are ordinary keys in memory; in deployment they would be non-exportable and
+        sealed to a TPM or Secure Enclave, which is the one property this code cannot
+        demonstrate on its own.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================= layer T -->
+  <section class="mx-auto max-w-5xl px-5 mt-16">
+    <div class="rule mb-8"></div>
+    <div class="flex items-baseline gap-3 flex-wrap">
+      <span
+        class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-amber-400/12 text-amber-400 tracking-wider"
+        >T</span
+      >
+      <h2 class="text-[22px] font-medium text-slate-300">The fingerprint</h2>
+      <span class="text-[13px] text-slate-400">assumes the leak will happen</span>
+    </div>
+
+    <p class="mt-5 text-[14px] leading-relaxed text-slate-400">
+      Prevention has a ceiling, so the last layer accepts the leak and makes it
+      attributable. Every recipient's copy has inter-word gaps displaced by
+      {' '}{f.delta_pt} pt — {f.delta_px_at_300dpi} px at 300 dpi — encoding a
+      collusion-resistant Tardos codeword.
+    </p>
+
+    <div class="grid sm:grid-cols-2 gap-4 mt-6">
+      <div class="panel rounded-lg p-5">
+        <h3 class="text-[13.5px] font-medium text-slate-300">
+          Gaps move in pairs that sum to zero
+        </h3>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-400">
+          A one is <span class="font-mono">(base+d, base−d)</span>, a zero the reverse. Line
+          length is therefore invariant, displacement cannot accumulate along a line, and
+          the right margin never moves. Detection compares two adjacent gaps, which cancels
+          global scale error from printing or photographing for free.
+        </p>
+      </div>
+      <div class="panel rounded-lg p-5">
+        <h3 class="text-[13.5px] font-medium text-slate-300">
+          The detector never segments words
+        </h3>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-400">
+          It holds the master, so it computes each word's expected window analytically from
+          the layout map. Two earlier detectors that found words by ink connectivity both
+          scored <em>at chance</em>: one split or merged glyph shifts every following gap
+          index and inverts the bits after it.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel rounded-lg p-6 mt-4">
+      <h3 class="text-[13.5px] font-medium text-slate-300">
+        The accusation test, and why it is two-sided
+      </h3>
+      <p class="mt-2.5 text-[13.5px] leading-relaxed text-slate-400">
+        A coalition that emits the minority bit everywhere produces a
+        <em>negatively</em> correlated sequence. The textbook one-sided test names
+        <span class="font-mono">0.000</span> of five colluders against that attack — not
+        degraded detection, zero detection. Scoring on
+        <span class="font-mono">|S|</span> recovers 3.5 of 5 with no false accusations.
+      </p>
+      <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400">
+        The threshold is calibrated against each code's own simulated null distribution
+        rather than taken as a number of sigma, because at the observation counts a single
+        photographed page provides the score is not reliably Gaussian. Codes are also
+        screened at generation time: two codes with identical parameters differed by an
+        order of magnitude in detection power.
+      </p>
+      <dl class="mt-5 grid sm:grid-cols-4 gap-x-6 gap-y-3 text-[12.5px]">
+        <div>
+          <dt class="text-slate-400">Traced from one page</dt>
+          <dd class="font-mono text-emerald-400 text-[15px] mt-0.5">
+            {tool.tracing_from_one_photographed_page.correct}/{tool
+              .tracing_from_one_photographed_page.trials}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-slate-400">False accusations</dt>
+          <dd class="font-mono text-emerald-400 text-[15px] mt-0.5">
+            {tool.tracing_from_one_photographed_page.false_accusations}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-slate-400">Worst margin</dt>
+          <dd class="font-mono text-slate-300 text-[15px] mt-0.5">
+            {tool.tracing_from_one_photographed_page.margin_over_nearest_innocent.min}×
+          </dd>
+        </div>
+        <div>
+          <dt class="text-slate-400">Codeword coverage</dt>
+          <dd class="font-mono text-slate-300 text-[15px] mt-0.5">
+            {tool.scale_test.codeword_coverage}×
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="panel rounded-lg p-5 mt-4 border-l-2 border-l-rose-400/70">
+      <p class="text-[13px] leading-relaxed text-slate-400">
+        <strong class="text-slate-300">Where it stops.</strong> Retyping destroys the
+        spacing channel. One page traces a single leaker, not a coalition — resisting five
+        colluders needs a code an order of magnitude longer and correspondingly more
+        recovered material. And the detector has a measured floor that is
+        <em>lighting</em>, not resolution: a dim, unevenly lit capture that is also heavily
+        downscaled falls to chance. At chance it names nobody rather than naming an
+        innocent, and there is a test asserting exactly that.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================= layer A -->
+  <section class="mx-auto max-w-5xl px-5 mt-16">
+    <div class="rule mb-8"></div>
+    <div class="flex items-baseline gap-3 flex-wrap">
+      <span
+        class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-amber-400/12 text-amber-400 tracking-wider"
+        >A</span
+      >
+      <h2 class="text-[22px] font-medium text-slate-300">Authorship provenance</h2>
+      <span class="text-[13px] text-slate-400">the academic case, inverted</span>
+    </div>
+
+    <p class="mt-5 text-[14px] leading-relaxed text-slate-400">
+      The other half of the academic problem is not distribution — it is a submission
+      someone did not write. Detection is the wrong primitive for it: the signal is weak,
+      the cost of a false positive is an accused student, and the bias falls on non-native
+      English writers. So rather than proving a student <em>did</em> cheat, a student can
+      offer positive evidence that they wrote it, and nobody runs a classifier over their
+      prose.
+    </p>
+
+    <div class="grid sm:grid-cols-2 gap-4 mt-6">
+      <div class="panel rounded-lg p-5">
+        <h3 class="text-[13.5px] font-medium text-slate-300">Protecting the student</h3>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-400">
+          A keystroke log is surveillance and no institution should hold one. The trail
+          never leaves the author's device. What is disclosed is a set of zero-knowledge
+          predicates over it — “no single insertion exceeded 400 characters” — via Pedersen
+          commitments and bit-decomposition range proofs. Of 861 edit events, zero
+          timestamps and zero statistic values appear anywhere in the credential.
+        </p>
+      </div>
+      <div class="panel rounded-lg p-5">
+        <h3 class="text-[13.5px] font-medium text-slate-300">
+          Protecting the institution
+        </h3>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-400">
+          Zero-knowledge proofs supply no integrity by themselves — an author could commit
+          to whatever statistics suit them. So an attested editor computes the statistics,
+          commits to them, and signs the commitments alongside the trail root and the
+          submission hash. The proofs are privacy; the signature is integrity.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel rounded-lg p-6 mt-4">
+      <h3 class="text-[13.5px] font-medium text-slate-300">
+        Five simulated sessions, all producing the same length of text
+      </h3>
+      <table class="mt-4 w-full text-[13px]">
+        <tbody class="divide-y divide-ink-700/50">
+          {
+            [
+              ['honest, deliberate (65 min)', 'credential complete', 'good'],
+              ['honest, fluent (3 min)', 'credential complete', 'good'],
+              ['one bulk paste', 'incomplete — all three predicates fail', 'bad'],
+              ['pasted in twelve chunks', 'incomplete — all three predicates fail', 'bad'],
+              ['model output retyped by hand', 'credential complete', 'warn'],
+            ].map(([s, v, tone]) => (
+              <tr>
+                <td class="py-2.5 pr-6 text-slate-400">{s}</td>
+                <td
+                  class={`py-2.5 ${
+                    tone === 'good'
+                      ? 'text-emerald-400'
+                      : tone === 'bad'
+                        ? 'text-slate-300'
+                        : 'text-rose-400'
+                  }`}
+                >
+                  {v}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p class="mt-4 text-[13px] leading-relaxed text-slate-400">
+        That last row is the fundamental limit, and the suite asserts it rather than hiding
+        it. This layer attests a <em>process</em>, not an <em>origin</em>: someone who reads
+        model output off a phone and types it in at human pace satisfies every predicate.
+        What changes is that the shortcut is no longer free, and the honest student is no
+        longer at the mercy of a classifier.
+      </p>
+    </div>
+
+    <div class="panel rounded-lg p-5 mt-4 border-l-2 border-l-amber-400/70">
+      <p class="text-[13px] leading-relaxed text-slate-400">
+        <strong class="text-slate-300">The default policy has no time predicate, on
+        purpose.</strong> A wall-clock floor looks like an obvious check and is a bad one.
+        Two honest sessions producing identical output took 65 minutes and 3 minutes; a
+        30-minute floor passes the first and fails the second. A floor penalises fluency and
+        rewards leaving the editor open. Rhythm statistics are worse — they misfire on
+        dictation, on motor impairment, and on drafting in a second language.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-5 mt-16">
+    <div class="rule mb-8"></div>
+    <div class="flex flex-wrap gap-3">
+      <a
+        href={`${base}/evidence`}
+        class="inline-flex items-center gap-2 rounded bg-amber-400 px-4 py-2.5 text-[13.5px] font-medium text-ink-950 hover:bg-amber-300 transition-colors"
+        >Every claim and its test →</a
+      >
+      <a
+        href={`${base}/limits`}
+        class="inline-flex items-center gap-2 rounded border border-ink-600/80 px-4 py-2.5 text-[13.5px] text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+        >What it cannot do</a
+      >
+    </div>
+  </section>
+</Base>

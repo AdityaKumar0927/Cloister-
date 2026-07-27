@@ -1,0 +1,253 @@
+---
+import Base from '../layouts/Base.astro'
+import regression from '../data/regression.json'
+import tool from '../data/tool_results.json'
+import demo from '../data/demo.json'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const regs = regression.results.filter((r: any) => r.kind === 'regression').length
+const claims = regression.total - regs
+
+const layers = [
+  {
+    n: 'P1',
+    name: 'The envelope',
+    claim: 'A key that depends on the runtime, not on who you are.',
+    body:
+      'A hybrid post-quantum sealed container whose content key is bound to a runtime ' +
+      'posture policy. The reader must first enter an irreversible sandbox with no ' +
+      'network, and only then present that posture to obtain a 900-second lease. The ' +
+      'policy digest sits inside the key-derivation transcript, so relaxing the policy ' +
+      'does not yield a permissive envelope — it yields a key that no longer reproduces.',
+    proof: 'Zero KEM decapsulations occur on a denied open. Measured, not asserted.',
+  },
+  {
+    n: 'D',
+    name: 'The chaff layer',
+    claim: 'The extractor reads a different document than the human does.',
+    body:
+      'The glyphs drawn on the page are your document. The characters every extraction ' +
+      'library reports are fluent cover prose. The mechanism is a PDF detail: a ' +
+      'ToUnicode entry may map one glyph to a whole string, so six drawn glyphs can ' +
+      'report a full sentence — which removes any need for a language model to write ' +
+      'the decoy.',
+    proof: `${demo.headline.text_layer_recovered} of ${demo.headline.terms_total} sensitive terms recovered by three independent readers.`,
+  },
+  {
+    n: 'T',
+    name: 'The fingerprint',
+    claim: 'Every copy is unique, and it survives a photograph.',
+    body:
+      'Inter-word spacing carries a collusion-resistant Tardos codeword at a quarter ' +
+      'of a point — about one pixel at 300 dpi. Gaps move in pairs that sum to zero, so ' +
+      'line length never changes and the right margin never moves. Photograph one page ' +
+      'with a phone and the recipient is named out of the roster.',
+    proof: '24 of 24 traced across eight lighting conditions, 0 false accusations.',
+  },
+  {
+    n: 'A',
+    name: 'Authorship provenance',
+    claim: 'Prove you wrote it, instead of being scanned to see if you did.',
+    body:
+      'Detection is the wrong primitive for student work: the signal is weak, the cost ' +
+      'of a false positive is an accused person, and the bias falls on non-native ' +
+      'writers. So this inverts it — the author offers zero-knowledge predicates over ' +
+      'their own edit trail, and nobody runs a classifier over their prose.',
+    proof:
+      'Of 861 edit events, zero timestamps and zero statistic values appear in the credential.',
+  },
+]
+---
+
+<Base
+  title="CLOISTER — keep documents out of AI models, and trace the ones that get out"
+  description="A four-layer defence for documents that must not be fed to AI: a text layer that reads as a different document, posture-gated post-quantum decryption, a per-recipient fingerprint that survives a photograph, and zero-knowledge authorship provenance."
+>
+  <!-- ============================================================ hero -->
+  <section class="relative grain overflow-hidden">
+    <div
+      class="absolute inset-0 -z-10"
+      style="background:radial-gradient(60rem 30rem at 50% -8rem, rgba(232,163,61,.10), transparent 70%)"
+    >
+    </div>
+    <div class="mx-auto max-w-5xl px-5 pt-20 pb-16">
+      <p
+        class="font-mono text-[11.5px] uppercase tracking-[0.22em] text-amber-400/90 mb-5"
+      >
+        Research prototype · {regression.total} tests · {regs} of them regressions
+      </p>
+      <h1
+        class="text-[2.6rem] sm:text-[3.4rem] leading-[1.06] font-semibold tracking-[-0.02em] text-slate-300"
+      >
+        Your document was never<br />
+        <span class="text-amber-400">meant to be training data.</span>
+      </h1>
+      <p class="mt-7 max-w-2xl text-[15.5px] leading-relaxed text-slate-400">
+        You cannot make a file that a determined human with a camera cannot read. So
+        CLOISTER does not try. It attacks the four moments where ingestion actually
+        happens: it makes the file hostile to <em>automated</em> readers, makes the key
+        conditional on a sandbox rather than on an identity, marks every copy so a leak
+        names its source, and lets an author prove their process instead of being scanned
+        by a detector.
+      </p>
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a
+          href={`${base}/demo`}
+          class="group inline-flex items-center gap-2 rounded bg-amber-400 px-4 py-2.5 text-[13.5px] font-medium text-ink-950 hover:bg-amber-300 transition-colors"
+        >
+          Watch an AI agent fail to read one
+          <span class="transition-transform group-hover:translate-x-0.5">→</span>
+        </a>
+        <a
+          href={`${base}/evidence`}
+          class="inline-flex items-center gap-2 rounded border border-ink-600/80 px-4 py-2.5 text-[13.5px] text-slate-300 hover:border-amber-400/60 hover:text-amber-400 transition-colors"
+        >
+          Read the measurements
+        </a>
+      </div>
+      <p class="mt-5 text-[12.5px] text-slate-400">
+        The demo runs a real agentic loop in your browser tab. No API key, nothing
+        uploaded — the same property the tool argues for.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ numbers -->
+  <section class="mx-auto max-w-5xl px-5">
+    <div class="rule mb-8"></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-7">
+      {
+        [
+          {
+            v: `${demo.headline.text_layer_recovered}/${demo.headline.terms_total}`,
+            l: 'sensitive terms recovered by text extraction',
+            s: 'pdftotext, pypdf and pdfplumber, all three agreeing',
+          },
+          {
+            v: `${tool.tracing_from_one_photographed_page.correct}/${tool.tracing_from_one_photographed_page.trials}`,
+            l: 'leaks traced from one photographed page',
+            s: `${tool.tracing_from_one_photographed_page.false_accusations} false accusations across a 40-person roster`,
+          },
+          {
+            v: `${regression.passed}/${regression.total}`,
+            l: 'tests passing',
+            s: `${claims} measured claims, ${regs} regression tests, each carrying its own bug`,
+          },
+          {
+            v: `${demo.fingerprint.delta_px_at_300dpi} px`,
+            l: 'displacement carrying the fingerprint',
+            s: 'a quarter of a point; invisible on paper, recoverable from a phone photo',
+          },
+        ].map((k) => (
+          <div>
+            <div class="font-mono text-[2rem] leading-none tabnum text-amber-400">
+              {k.v}
+            </div>
+            <div class="mt-2.5 text-[13px] text-slate-300 leading-snug">{k.l}</div>
+            <div class="mt-1 text-[12px] text-slate-400 leading-snug">{k.s}</div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ============================================================ the honest bit -->
+  <section class="mx-auto max-w-5xl px-5 mt-20">
+    <div class="panel rounded-lg p-6 sm:p-7 border-l-2 border-l-rose-400/70">
+      <h2 class="text-[15px] font-medium text-slate-300">
+        What this does not do, stated before the pitch rather than after it
+      </h2>
+      <p class="mt-3 text-[13.5px] leading-relaxed text-slate-400 max-w-3xl">
+        <strong class="text-slate-300">OCR reads the page.</strong> On the demo document,
+        tesseract recovers {demo.headline.ocr_recovered} of {demo.headline.terms_total}{' '}
+        terms, and you can run that channel yourself on the demo page. Anyone who may read
+        a document can also retype it, and then the spacing fingerprint is gone — though
+        the trace survives verbatim retyping of the decoy. Every degradation figure on this
+        site is a simulation, and simulations written next to the detector they test have
+        already proven able to flatter it: that mistake went unnoticed here for an entire
+        measurement campaign, and finding it is{' '}
+        <a href={`${base}/evidence#found`} class="text-amber-400 hover:underline"
+          >written up rather than quietly fixed</a
+        >.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ layers -->
+  <section class="mx-auto max-w-5xl px-5 mt-20">
+    <h2 class="text-[13px] uppercase tracking-[0.16em] text-slate-400">
+      Four layers, four different moments
+    </h2>
+    <div class="rule mt-4 mb-9"></div>
+    <div class="space-y-5">
+      {
+        layers.map((l) => (
+          <article class="panel rounded-lg p-6 sm:p-7 hover:border-amber-400/30 transition-colors">
+            <div class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+              <span class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-amber-400/12 text-amber-400 tracking-wider">
+                {l.n}
+              </span>
+              <h3 class="text-[17px] font-medium text-slate-300">{l.name}</h3>
+              <p class="text-[13.5px] text-amber-400/90">{l.claim}</p>
+            </div>
+            <p class="mt-3.5 text-[13.5px] leading-relaxed text-slate-400 max-w-3xl">
+              {l.body}
+            </p>
+            <p class="mt-3 text-[12.5px] text-slate-400 font-mono border-l border-ink-600 pl-3">
+              {l.proof}
+            </p>
+          </article>
+        ))
+      }
+    </div>
+    <div class="mt-7">
+      <a
+        href={`${base}/how-it-works`}
+        class="text-[13.5px] text-amber-400 hover:underline"
+        >How each layer works, in detail →</a
+      >
+    </div>
+  </section>
+
+  <!-- ============================================================ cta -->
+  <section class="mx-auto max-w-5xl px-5 mt-20">
+    <div class="rule mb-8"></div>
+    <div class="grid md:grid-cols-3 gap-5">
+      {
+        [
+          {
+            h: 'Run the attack',
+            b: 'An agentic loop in your own tab, against a real protected PDF.',
+            href: `${base}/demo`,
+            cta: 'Live demo',
+          },
+          {
+            h: 'Check the numbers',
+            b: 'Every claim, its test, and the raw JSON the suite wrote.',
+            href: `${base}/evidence`,
+            cta: 'Evidence',
+          },
+          {
+            h: 'Read the paper',
+            b: '36 pages: threat model, constructions, measurements, and nine bugs found by measuring.',
+            href: `${base}/paper/CLOISTER-whitepaper.pdf`,
+            cta: 'Whitepaper (PDF)',
+          },
+        ].map((c) => (
+          <a
+            href={c.href}
+            class="panel rounded-lg p-5 hover:border-amber-400/40 transition-colors group"
+          >
+            <h3 class="text-[14.5px] font-medium text-slate-300">{c.h}</h3>
+            <p class="mt-2 text-[12.5px] leading-relaxed text-slate-400">{c.b}</p>
+            <span class="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-amber-400">
+              {c.cta}
+              <span class="transition-transform group-hover:translate-x-0.5">→</span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>
